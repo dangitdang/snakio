@@ -14,7 +14,7 @@
     "randomcolor" : "*",
     "socket.io" : "*"
   },
-  " scripts" : {
-    "start" : "npm ./server/app.js"
+  "scripts" : {
+    "start" : "node ./server/app.js"
   }
 }
