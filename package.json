@@ -13,5 +13,8 @@
     "ramda" : "*",
     "randomcolor" : "*",
     "socket.io" : "*"
+  },
+  " scripts" : {
+    "start" : "npm ./server/app.js"
   }
 }
