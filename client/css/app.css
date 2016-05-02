@@ -1,0 +1,19 @@
+
+.container {
+  width: 800px;
+  height: 800px;
+  position: relative;
+  margin: 0 auto;
+}
+canvas {
+  z-index: 1;
+  position: absolute;
+}
+
+#game-start {
+  position: absolute;
+  top : 400px;
+  left : 200px;
+  margin: 0 auto;
+  z-index: 2;
+}
