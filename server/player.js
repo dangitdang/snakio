@@ -7,6 +7,7 @@ var DIRS = [
 ];
 var utils = require('../utils.js');
 var randomColor = require('randomcolor');
+
 var PlayersManager = function(opts) {
     var that = this;
     var players = [];
@@ -19,7 +20,8 @@ var PlayersManager = function(opts) {
             body: [],
             notes: [],
             lastPing: new Date().getTime(),
-            hue: randomColor()
+            hue: randomColor(),
+            instrument:"piano"
         };
         var initNotes = [53, 57, 60];
         R.forEach(function(note){

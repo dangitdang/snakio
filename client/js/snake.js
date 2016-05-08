@@ -36,7 +36,12 @@ $(document).ready(function() {
         "65": "#FFEE58"
 
     };
-    
+    var instrumentToChannel={
+        0:0,
+        118:1,
+        57:2,
+        8:3
+    }
     var colorToNote = {
         "#F48FB1": "F",
         "#C51162": "G",
@@ -59,7 +64,9 @@ $(document).ready(function() {
     });
     var startGame = function(){
       player.name = $('#player-name').val();
-      gameStarted = true;
+      player.instrument= document.querySelector('input[name = "inst"]:checked').value;
+
+    gameStarted = true;
       socket.emit('readyToStart',player);
       $('#game-start').fadeOut();
       var counter = 750;
@@ -78,7 +85,7 @@ $(document).ready(function() {
     }
     socket.on('playerInfo', function(playerinfo){
       player = playerinfo;
-      console.log(player);
+      
     });
     socket.on('gameConfig', function(size){
       animLoop();
@@ -101,12 +108,16 @@ $(document).ready(function() {
 
     MIDI.loadPlugin({
         soundfontUrl: "./soundfont2/",
-        instrument: "acoustic_grand_piano",
+        instruments: ["acoustic_grand_piano","trumpet","synth_drum", "celesta"],
         onprogress: function(state, progress) {
             //console.log(state, progress);
         },
         onsuccess: function() {
             midiLoaded = true;
+            MIDI.programChange(0, 0); // set channel 0 to piano
+            MIDI.programChange(1, 118); // set channel 1 to synth drum
+            MIDI.programChange(2, 56); //trumpet
+            MIDI.programChange(3, 8); //celesta
 
 
         }
@@ -118,10 +129,10 @@ $(document).ready(function() {
         var duration = 0.0;
         var delay = .25;
         var velocity = 127;
-        MIDI.setVolume(0, 127);
+        MIDI.setVolume(instrumentToChannel[player.instrument], 127);
         for (var i = 0; i < player.notes.length; i++) {
-            MIDI.noteOn(0, player.notes[i], velocity, delay);
-            MIDI.noteOff(0, player.notes[i], delay + duration);
+            MIDI.noteOn(instrumentToChannel[player.instrument], player.notes[i], velocity, delay);
+            MIDI.noteOff(instrumentToChannel[player.instrument], player.notes[i], delay + duration);
             delay = delay + .25;
         }
 
