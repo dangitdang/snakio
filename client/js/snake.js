@@ -164,7 +164,7 @@ $(document).ready(function() {
 
  
  
-    
+  
     function gameLoop(){
       if (died) {
         //TODO: draw dead screen
