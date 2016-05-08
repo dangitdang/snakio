@@ -21,10 +21,11 @@ var PlayersManager = function(opts) {
             lastPing: new Date().getTime(),
             hue: randomColor()
         };
-        var initNotes = [55, 58, 62];
+        var initNotes = [53, 57, 60];
         R.forEach(function(note){
           that.appendNote(player, note);
         }, initNotes);
+        console.log(player, 'new notes?');
         return player;
     };
 
