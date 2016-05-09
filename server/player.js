@@ -21,13 +21,14 @@ var PlayersManager = function(opts) {
             notes: [],
             lastPing: new Date().getTime(),
             hue: randomColor(),
-            instrument:"piano"
+            instrument:"piano",
+            score:0,
+            maxLength:8
         };
         var initNotes = [53, 57, 60];
         R.forEach(function(note){
           that.appendNote(player, note);
         }, initNotes);
-        console.log(player, 'new notes?');
         return player;
     };
 
@@ -76,11 +77,15 @@ var PlayersManager = function(opts) {
           x: prev.x - player.dir[0],
           y: prev.y - player.dir[1],
         }
-        player.body.push(newNote);
+        if (player.body.length<player.maxLength){
+            player.body.push(newNote);
+        }
+        
         if (player.notes.length > 8){
           player.notes.splice(0,1);
         }
         player.notes.push(note);
+        player.score+=10; //10 points per note
     };
 
     that.nearByPlayers = function(player) {
