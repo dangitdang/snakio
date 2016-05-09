@@ -128,7 +128,7 @@ $(document).ready(function() {
     function playSnake() {
         var duration = 0.0;
         var delay = .25;
-        var velocity = 127;
+        var velocity = 20;
         MIDI.setVolume(instrumentToChannel[player.instrument], 127);
         for (var i = 0; i < player.notes.length; i++) {
             MIDI.noteOn(instrumentToChannel[player.instrument], player.notes[i], velocity, delay);
@@ -201,6 +201,7 @@ $(document).ready(function() {
       notes.forEach(function(note){
         color_note(dx+note.x, dy+note.y, pitchToColor[note.pitch]);
       });
+        
     }
 
     function check_collision(x, y, array) {
