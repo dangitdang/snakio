@@ -4,17 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node ./server/app.js"
   },
   "author": "",
   "license": "MIT",
-  "dependencies" : {
-    "express" : "*",
-    "ramda" : "*",
-    "randomcolor" : "*",
-    "socket.io" : "*"
-  },
-  "scripts" : {
-    "start" : "node ./server/app.js"
+  "dependencies": {
+    "express": "*",
+    "nodemon": "^1.9.2",
+    "ramda": "*",
+    "randomcolor": "*",
+    "socket.io": "*"
   }
 }

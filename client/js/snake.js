@@ -8,6 +8,7 @@ $(document).ready(function() {
     var cellSize = 20;
     var direction;
     var notes;
+    var powerups;
     var score = 0;
     var died = false;
     var disconnected = false;
@@ -98,9 +99,13 @@ $(document).ready(function() {
     socket.on('update', function(updates){
       player = updates.player;
       notes = updates.nearByNotes;
+     
+      powerups=updates.nearByPowerups;
       nearByPlayers = updates.nearByPlayers;
+        
       if (last !== undefined) {
         var now = new Date().getTime();
+
         if (now - last > 100){
           console.log(now - last)
         }
@@ -175,14 +180,14 @@ $(document).ready(function() {
     $(document).keydown(function(e) {
         var letter = e.which;
         var direction;
-        //console.log(direction);
-        if (letter == "37" && direction!=[1,0] ) {
+        console.log(player.dir)
+        if (letter == "37") { //left
             direction = [-1,0];
-        } else if (letter == "39") {
+        } else if (letter == "39") { //right
             direction = [1,0];
-        } else if (letter == "38") {
+        } else if (letter == "38") { //up
             direction = [0,-1];
-        } else if (letter == "40") {
+        } else if (letter == "40") { //down
             direction = [0,1];
         };
         if (direction){
@@ -210,6 +215,7 @@ $(document).ready(function() {
           paintBorder();
           paintSnake(player);
           paintNotes();
+          paintPowerups();
 
         }
       }
@@ -224,6 +230,17 @@ $(document).ready(function() {
       });
 
     }
+    
+    function paintPowerups(){
+        //console.log("powerups paint", powerups);
+      var dx = (Math.floor(width/cellSize/2 - player.head.x));
+      var dy = (Math.floor(height/cellSize/2 - player.head.y));
+      if (!powerups) return;
+      powerups.forEach(function(power){
+        color_note(dx+power.x, dy+power.y, "red");
+      });
+        
+    }
 
     function check_collision(x, y, array) {
         for (var i = 0; i < array.length; i++) {
@@ -234,7 +251,6 @@ $(document).ready(function() {
         return false;
     }
 
-    //Colors pitches with different colors- will replace color_note
     function color_note(x, y, color) {
         ctx.font = "15px Arial";
         ctx.fillStyle = color;
@@ -251,13 +267,19 @@ $(document).ready(function() {
     function paintSnake(snake){
       var diff = paintHead(snake.head);
       var pitchIndex=0;
+        //console.log(snake.body, "body")
       snake.body.forEach(function(part,i){
-        if (i < snake.maxLength){
-          var partPitch = snake.notes[i];
+            if (i<snake.maxLength){
+                var partPitch = snake.notes[i];
           paintPart(part, diff, pitchToColor[partPitch]);
-        } else {
-          paintPart(part, diff, snake.hue);
-        }
+            }
+          
+         else{
+           paintPart(part, diff, snake.hue);  
+         }
+          
+            
+        
       });
 
       nearByPlayers.forEach(function(other){
