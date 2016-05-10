@@ -47,6 +47,7 @@ var NotesManager = function(opts){
     for (var i = 0; i < nearBy.length; i++) {
       if (player.head.x === nearBy[i].x && player.head.y === nearBy[i].y){
         deleteNotes([nearBy[i]]);
+        that.addNotes(1);
         return nearBy[i];
       }
     }
