@@ -140,13 +140,12 @@ $(document).ready(function() {
       var p1 = player.head;
       var p2 = other.head;
       var dist = Math.sqrt(Math.pow(p2.x - p1.x,2) + Math.pow(p2.y-p2.y,2));
-      return 50 - dist*(1.7);
+      return 80 - dist*(.7);
 
     }
     function playNotes(){
       var delay = 0;
-      var velocity = 50
-      MIDI.setVolume(instrumentToChannel[player.instrument], 127);
+      var velocity = 80;
       MIDI.noteOn(instrumentToChannel[player.instrument], player.notes[curNoteIndex], velocity, delay);
       MIDI.noteOff(instrumentToChannel[player.instrument], player.notes[curNoteIndex], delay)
       curNoteIndex +=1;
