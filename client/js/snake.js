@@ -95,11 +95,13 @@ $(document).ready(function() {
     socket.on('update', function(updates){
       player = updates.player;
       notes = updates.nearByNotes;
+     
       powerups=updates.nearByPowerups;
       nearByPlayers = updates.nearByPlayers;
+        
       if (last !== undefined) {
         var now = new Date().getTime();
-        console.log(now - last)
+        //console.log(now - last)
         last = now;
       } else {
         last = new Date().getTime();
@@ -216,11 +218,12 @@ $(document).ready(function() {
     }
     
     function paintPowerups(){
+        //console.log("powerups paint", powerups);
       var dx = (Math.floor(width/cellSize/2 - player.head.x));
       var dy = (Math.floor(height/cellSize/2 - player.head.y));
-      if (!notes) return;
-      notes.forEach(function(note){
-        color_note(dx+note.x, dy+note.y, pitchToColor[note.pitch]);
+      if (!powerups) return;
+      powerups.forEach(function(power){
+        color_note(dx+power.x, dy+power.y, "red");
       });
         
     }
@@ -234,7 +237,6 @@ $(document).ready(function() {
         return false;
     }
 
-    //Colors pitches with different colors- will replace color_note
     function color_note(x, y, color) {
         ctx.font = "15px Arial";
         ctx.fillStyle = color;
@@ -256,7 +258,8 @@ $(document).ready(function() {
           var partPitch = snake.notes[i];
           paintPart(part, diff, pitchToColor[partPitch]);
         } else {
-          paintPart(part, diff, snake.hue);
+          //paintPart(part, diff, snake.hue);
+            
         }
       });
 

@@ -86,6 +86,16 @@ var NotesManager = function(opts){
     }
     return false;
   };
+  
+    that.atePowerup = function(player, nearBy){
+    for (var i = 0; i < nearBy.length; i++) {
+      if (player.head.x === nearBy[i].x && player.head.y === nearBy[i].y){
+        deletePowerups([nearBy[i]]);
+        return nearBy[i];
+      }
+    }
+    return false;
+  };
 
   return that;
 };

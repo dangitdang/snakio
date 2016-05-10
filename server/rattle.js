@@ -8,7 +8,7 @@ var io;
 var rattle;
 var sockets = {};
 notes.addNotes(500);
-notes.addPowerups(20);
+notes.addPowerups(100);
 var listen = function(app){
     io = socketio.listen(app);
 
@@ -62,7 +62,7 @@ var sendUpdates = function () {
     var player = players.getPlayer(id);
     var nearPlayers = players.nearByPlayers(player);
     var nearNotes = notes.nearByNotes(player);
-    var powerupList=notes.nearByPowerups(player);
+    var nearPowerups=notes.nearByPowerups(player);
 
       if (players.checkCollisions(player, nearPlayers)){
       sockets[id].emit('dead', {
@@ -71,21 +71,24 @@ var sendUpdates = function () {
       players.deadPlayer(player);
     } else {
       var noteAte = notes.ateNote(player, nearNotes);
-      var powerupAte = notes.ateNote(player,powerupList );
+      var powerupAte = notes.atePowerup(player,nearPowerups );
       if (noteAte) {
         players.appendNote(player, noteAte.pitch);
       }
         
       if (powerupAte) {
+          
         player.maxLength+=powerupAte.increase;
+          console.log(player.maxLength, "max len");
       }
       sockets[id].emit('update',{
         player : player,
         nearByPlayers : nearPlayers,
-        nearByNotes : nearNotes
+        nearByNotes : nearNotes,
+          nearByPowerups:nearPowerups
       });
     }
-    var end = console.timeEnd('collision')
+    //var end = console.timeEnd('collision')
   });
 }
 
