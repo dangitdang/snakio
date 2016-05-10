@@ -15,6 +15,7 @@ $(document).ready(function() {
     var gameStarted = false;
     var nearByPlayers = [];
     var player;
+    var last;
 
     var colorToNote = {
         53 : "#F48FB1",
@@ -86,7 +87,7 @@ $(document).ready(function() {
     }
     socket.on('playerInfo', function(playerinfo){
       player = playerinfo;
-      
+
     });
     socket.on('gameConfig', function(size){
       animLoop();
@@ -96,13 +97,20 @@ $(document).ready(function() {
       notes = updates.nearByNotes;
       powerups=updates.nearByPowerups;
       nearByPlayers = updates.nearByPlayers;
+      if (last !== undefined) {
+        var now = new Date().getTime();
+        console.log(now - last)
+        last = now;
+      } else {
+        last = new Date().getTime();
+      }
     });
 
     socket.on('dead', function(msg){
       died = true;
     });
 
-    
+
     function animLoop() {
       animLoopHandle = window.requestAnimationFrame(animLoop);
       gameLoop();
@@ -125,7 +133,7 @@ $(document).ready(function() {
         }
     });
 
-    
+
     //plays the snake built so far
     function playSnake() {
         var duration = 0.0;
@@ -150,7 +158,7 @@ $(document).ready(function() {
         }
     }
 
-    
+
     //Moving the snake
     $(document).keydown(function(e) {
         var letter = e.which;
@@ -175,9 +183,9 @@ $(document).ready(function() {
 
     })
 
- 
- 
-  
+
+
+
     function gameLoop(){
       if (died) {
         //TODO: draw dead screen
@@ -196,7 +204,7 @@ $(document).ready(function() {
         }
       }
     }
-    
+
     function paintNotes(){
       var dx = (Math.floor(width/cellSize/2 - player.head.x));
       var dy = (Math.floor(height/cellSize/2 - player.head.y));
@@ -204,7 +212,7 @@ $(document).ready(function() {
       notes.forEach(function(note){
         color_note(dx+note.x, dy+note.y, pitchToColor[note.pitch]);
       });
-        
+
     }
     
     function paintPowerups(){
@@ -231,27 +239,30 @@ $(document).ready(function() {
         ctx.font = "15px Arial";
         ctx.fillStyle = color;
         ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-        
+
         ctx.strokeStyle = color;
         ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
         ctx.fillStyle = "white";
         if (colorToNote[color]!=undefined){
             ctx.fillText(colorToNote[color],x * cellSize+cellSize/4, y * cellSize+cellSize*.75);
         }
-        
+
     }
     function paintSnake(snake){
       var diff = paintHead(snake.head);
       var pitchIndex=0;
-      snake.body.forEach(function(part){
-          var partPitch=snake.notes[pitchIndex];
-        paintPart(part, diff, pitchToColor[partPitch]);
-          pitchIndex+=1
+      snake.body.forEach(function(part,i){
+        if (i < snake.maxLength){
+          var partPitch = snake.notes[i];
+          paintPart(part, diff, pitchToColor[partPitch]);
+        } else {
+          paintPart(part, diff, snake.hue);
+        }
       });
 
       nearByPlayers.forEach(function(other){
         paintOthers(other, diff);
-          
+
       });
     }
 

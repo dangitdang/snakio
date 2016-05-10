@@ -77,11 +77,8 @@ var PlayersManager = function(opts) {
           x: prev.x - player.dir[0],
           y: prev.y - player.dir[1],
         }
-        if (player.body.length<player.maxLength){
-            player.body.push(newNote);
-        }
-        
-        if (player.notes.length > 8){
+        player.body.push(newNote);
+        if (player.notes.length >= player.maxLength){
           player.notes.splice(0,1);
         }
         player.notes.push(note);

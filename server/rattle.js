@@ -33,7 +33,6 @@ var listen = function(app){
       });
 
       socket.on('playerInput', function(input){
-        console.log(input);
         if (COMMANDS.indexOf(input.cmd) > -1){
           players[input.cmd](currentPlayer,input.arg);
         } else {
@@ -59,6 +58,7 @@ var stepPlayers = function(){
 var sendUpdates = function () {
   var playersId = Object.keys(sockets);
   playersId.forEach(function(id){
+    var start = console.time('collision')
     var player = players.getPlayer(id);
     var nearPlayers = players.nearByPlayers(player);
     var nearNotes = notes.nearByNotes(player);
@@ -85,6 +85,7 @@ var sendUpdates = function () {
         nearByNotes : nearNotes
       });
     }
+    var end = console.timeEnd('collision')
   });
 }
 
