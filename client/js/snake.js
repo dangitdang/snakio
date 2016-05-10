@@ -89,9 +89,7 @@ $(document).ready(function() {
 
     });
     socket.on('gameConfig', function(size){
-      ctx.fillStyle = '#f2fbff';
-      ctx.fillRect(0,0, width, height);
-      drawGrid();
+
       animLoop();
     })
     socket.on('update', function(updates){
@@ -195,7 +193,9 @@ $(document).ready(function() {
       }
       else if (!disconnected) {
         if (gameStarted) {
-
+          ctx.fillStyle = '#f2fbff';
+          ctx.fillRect(0,0, width, height);
+          drawGrid();
           paintBorder();
           paintSnake(player);
           paintNotes();
