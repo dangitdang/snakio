@@ -8,6 +8,7 @@ $(document).ready(function() {
     var cellSize = 20;
     var direction;
     var notes;
+    var powerups;
     var score = 0;
     var died = false;
     var disconnected = false;
@@ -93,6 +94,7 @@ $(document).ready(function() {
     socket.on('update', function(updates){
       player = updates.player;
       notes = updates.nearByNotes;
+      powerups=updates.nearByPowerups;
       nearByPlayers = updates.nearByPlayers;
     });
 
@@ -154,7 +156,7 @@ $(document).ready(function() {
         var letter = e.which;
         var direction;
         //console.log(direction);
-        if (letter == "37" && direction!=[1,0] ) {
+        if (letter == "37" ) {
             direction = [-1,0];
         } else if (letter == "39") {
             direction = [1,0];
@@ -189,12 +191,23 @@ $(document).ready(function() {
           paintBorder();
           paintSnake(player);
           paintNotes();
+          paintPowerups();
 
         }
       }
     }
     
     function paintNotes(){
+      var dx = (Math.floor(width/cellSize/2 - player.head.x));
+      var dy = (Math.floor(height/cellSize/2 - player.head.y));
+      if (!notes) return;
+      notes.forEach(function(note){
+        color_note(dx+note.x, dy+note.y, pitchToColor[note.pitch]);
+      });
+        
+    }
+    
+    function paintPowerups(){
       var dx = (Math.floor(width/cellSize/2 - player.head.x));
       var dy = (Math.floor(height/cellSize/2 - player.head.y));
       if (!notes) return;
