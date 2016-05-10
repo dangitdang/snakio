@@ -9,6 +9,7 @@ var rattle;
 var sockets = {};
 notes.addNotes(500);
 notes.addPowerups(100);
+
 var listen = function(app){
     io = socketio.listen(app);
 
@@ -57,6 +58,8 @@ var stepPlayers = function(){
 
 var sendUpdates = function () {
   var start = console.time('update')
+  players.moveAll();
+
   var playersId = Object.keys(sockets);
   playersId.forEach(function(id){
 

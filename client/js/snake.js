@@ -101,7 +101,10 @@ $(document).ready(function() {
         
       if (last !== undefined) {
         var now = new Date().getTime();
-        //console.log(now - last)
+
+        if (now - last > 100){
+          console.log(now - last)
+        }
         last = now;
       } else {
         last = new Date().getTime();
