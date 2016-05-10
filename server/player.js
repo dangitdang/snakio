@@ -138,7 +138,19 @@ var PlayersManager = function(opts) {
       }
       return false;
     }
-
+    
+    that.getScores=function(){
+        var scores=[]
+        players.forEach(function(player){
+            var score={
+                id:player.name,
+                score:player.score     
+            }
+            scores.push(score);
+        });
+        return scores;
+        
+    }
     return that;
 };
 

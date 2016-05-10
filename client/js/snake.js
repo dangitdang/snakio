@@ -16,6 +16,7 @@ $(document).ready(function() {
     var nearByPlayers = [];
     var player;
     var last;
+    var scoreList;
 
     var colorToNote = {
         53 : "#F48FB1",
@@ -89,21 +90,23 @@ $(document).ready(function() {
       player = playerinfo;
 
     });
+
     socket.on('gameConfig', function(size){
       animLoop();
     })
     socket.on('update', function(updates){
       player = updates.player;
       notes = updates.nearByNotes;
-     
       powerups=updates.nearByPowerups;
       nearByPlayers = updates.nearByPlayers;
+      scoreList = updates.scoreList;
+      //console.log(scoreList, "scoreLIst");
         
       if (last !== undefined) {
         var now = new Date().getTime();
 
         if (now - last > 100){
-          console.log(now - last)
+          //console.log(now - last)
         }
         last = now;
       } else {
@@ -114,8 +117,20 @@ $(document).ready(function() {
     socket.on('dead', function(msg){
       died = true;
     });
+     
+    
+    function updateScoreTable(scores){
+        var rank=1;
+        scores.reverse();
+        $('#scoreTable > tbody').empty();
+        $('#scoreTable').append('<tr><th>Rank</th><th>Name</th> <th>Points</th></tr>');
 
-
+    scores.forEach(function(player){
+        $('#scoreTable').find('tbody').append('<tr><td>' +rank+ '</td><td>'+ player.id+'</td><td>' +player.score+ '</td></tr>');
+        rank+=1;
+    });
+    
+    }
     function animLoop() {
       animLoopHandle = window.requestAnimationFrame(animLoop);
       gameLoop();
@@ -137,7 +152,6 @@ $(document).ready(function() {
 
         }
     });
-
 
     //plays the snake built so far
     function playSnake() {
@@ -168,7 +182,6 @@ $(document).ready(function() {
     $(document).keydown(function(e) {
         var letter = e.which;
         var direction;
-        console.log(player.dir)
         if (letter == "37") { //left
             direction = [-1,0];
         } else if (letter == "39") { //right
@@ -205,6 +218,7 @@ $(document).ready(function() {
           paintSnake(player);
           paintNotes();
           paintPowerups();
+          updateScoreTable(scoreList)
 
         }
       }

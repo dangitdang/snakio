@@ -7,6 +7,7 @@ var COMMANDS = ['setDirection','activatePower'];
 var io;
 var rattle;
 var sockets = {};
+var SCORES = [];
 notes.addNotes(500);
 notes.addPowerups(100);
 
@@ -56,6 +57,21 @@ var stepPlayers = function(){
   players.moveAll();
 }
 
+var updateScores=function(){
+    SCORES = players.getScores();
+    SCORES.sort(function(a, b){
+    var keyA = a.score,
+        keyB = b.score;
+    // Compare the 2 dates
+    if(keyA < keyB) return -1;
+    if(keyA > keyB) return 1;
+    return 0;
+});
+//    console.log(scores);
+//    io.sockets.emit("score",scores)
+
+}
+
 var sendUpdates = function () {
   var start = console.time('update')
   players.moveAll();
@@ -89,7 +105,8 @@ var sendUpdates = function () {
         player : player,
         nearByPlayers : nearPlayers,
         nearByNotes : nearNotes,
-        nearByPowerups:nearPowerups
+        nearByPowerups:nearPowerups,
+        scoreList : SCORES
       });
     }
 
@@ -101,5 +118,6 @@ var sendUpdates = function () {
 module.exports = {
   listen : listen,
   step : stepPlayers,
-  update : sendUpdates
+  update : sendUpdates,
+  updateScore:updateScores
 }
