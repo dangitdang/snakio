@@ -9,7 +9,7 @@ var port = process.env.PORT || 3000;
 
 
 
-setInterval(rattle.update,100);
+setInterval(rattle.update,150);
 
 http.listen(port, function() {
   console.log("Server is listening on port " + port);

@@ -71,24 +71,27 @@ $(document).ready(function() {
       socket.emit('readyToStart',player);
       $('#game-start').fadeOut();
       var counter = 750;
-      var audioLoop = function(){
-        clearInterval(interval);
-        var numAddedNotes = player.notes.length - oldPitchListLen;
-        counter += (250 * numAddedNotes);
-        oldPitchListLen = player.notes.length;
-        playSnake();
-        if (died){
-          return;
-        }
-        interval = setInterval(audioLoop, counter);
-      }
-      var interval = setInterval(audioLoop, counter);
+      // var audioLoop = function(){
+      //   clearInterval(interval);
+      //   var numAddedNotes = player.notes.length - oldPitchListLen;
+      //   counter += (250 * numAddedNotes);
+      //   oldPitchListLen = player.notes.length;
+      //   // playSnake();
+      //   if (died){
+      //     return;
+      //   }
+      //   interval = setInterval(audioLoop, counter);
+      // }
+      // var interval = setInterval(audioLoop, counter);
     }
     socket.on('playerInfo', function(playerinfo){
       player = playerinfo;
 
     });
     socket.on('gameConfig', function(size){
+      ctx.fillStyle = '#f2fbff';
+      ctx.fillRect(0,0, width, height);
+      drawGrid();
       animLoop();
     })
     socket.on('update', function(updates){
@@ -192,10 +195,7 @@ $(document).ready(function() {
       }
       else if (!disconnected) {
         if (gameStarted) {
-          ctx.fillStyle = '#f2fbff';
-          ctx.fillRect(0,0, width, height);
 
-          drawGrid();
           paintBorder();
           paintSnake(player);
           paintNotes();

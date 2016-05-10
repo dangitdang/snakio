@@ -134,8 +134,7 @@ var PlayersManager = function(opts) {
         return true;
       }
       return false;
-    }
-
+    };
     return that;
 };
 
