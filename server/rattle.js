@@ -7,6 +7,7 @@ var COMMANDS = ['setDirection','activatePower'];
 var io;
 var rattle;
 var sockets = {};
+
 notes.addNotes(300);
 var listen = function(app){
     io = socketio.listen(app);

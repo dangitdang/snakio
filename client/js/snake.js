@@ -12,7 +12,9 @@ $(document).ready(function() {
     var died = false;
     var disconnected = false;
     var gameStarted = false;
+    var curNoteIndex = 0;
     var nearByPlayers = [];
+    var playersNoteIndex = {};
     var player;
     var last;
 
@@ -70,7 +72,7 @@ $(document).ready(function() {
     gameStarted = true;
       socket.emit('readyToStart',player);
       $('#game-start').fadeOut();
-      var counter = 750;
+      //var counter = 750;
       // var audioLoop = function(){
       //   clearInterval(interval);
       //   var numAddedNotes = player.notes.length - oldPitchListLen;
@@ -83,13 +85,14 @@ $(document).ready(function() {
       //   interval = setInterval(audioLoop, counter);
       // }
       // var interval = setInterval(audioLoop, counter);
+
     }
     socket.on('playerInfo', function(playerinfo){
       player = playerinfo;
 
     });
     socket.on('gameConfig', function(size){
-
+      playNotes();
       animLoop();
     })
     socket.on('update', function(updates){
@@ -134,31 +137,33 @@ $(document).ready(function() {
         }
     });
 
-
-    //plays the snake built so far
-    function playSnake() {
-        var duration = 0.0;
-        var delay = .25;
-        var velocity = 20;
-        MIDI.setVolume(instrumentToChannel[player.instrument], 127);
-        for (var i = 0; i < player.notes.length; i++) {
-            MIDI.noteOn(instrumentToChannel[player.instrument], player.notes[i], velocity, delay);
-            MIDI.noteOff(instrumentToChannel[player.instrument], player.notes[i], delay + duration);
-            delay = delay + .25;
+    function playNotes(){
+      var delay = 0;
+      var velocity = 20;
+      MIDI.setVolume(instrumentToChannel[player.instrument], 127);
+      MIDI.noteOn(instrumentToChannel[player.instrument], player.notes[curNoteIndex], velocity, delay);
+      MIDI.noteOff(instrumentToChannel[player.instrument], player.notes[curNoteIndex], delay)
+      curNoteIndex +=1;
+      curNoteIndex = curNoteIndex % Math.max(player.maxLength, player.notes.length);
+      nearByPlayers.forEach(function(other){
+        var index = playersNoteIndex[other.id];
+        if (index !== undefined) {
+          var note = other.notes[index];
+          var channel = instrumentToChannel[other.instrument];
+          MIDI.noteOn(channel, note, velocity, delay);
+          MIDI.noteOff(channel, note, delay);
+        } else {
+          index = 1;
+          var note = other.notes[index];
+          var channel = instrumentToChannel[other.instrument];
+          MIDI.noteOn(channel, note, velocity, delay);
+          MIDI.noteOff(channel, note, delay);
         }
-
-        for (var j = 0; j < nearByPlayers.length; j ++){
-          var otherVelocity = 100;
-          var otherDelay = .25;
-          for (var k = 0; k < nearByPlayers[j].notes.length; k++) {
-            var note = nearByPlayers[j].notes[i];
-            MIDI.noteOn(0, note, otherVelocity, otherDelay);
-            MIDI.noteOff(0, note, otherDelay + duration);
-            otherDelay += .25;
-          }
-        }
+        index += 1;
+        playersNoteIndex[other.id] = index %  Math.max(other.maxLength, other.notes.length);
+      })
+      setTimeout(playNotes, 250);
     }
-
 
     //Moving the snake
     $(document).keydown(function(e) {

@@ -99,6 +99,10 @@ var PlayersManager = function(opts) {
         return R.filter(function(other) { return other; }, nearBy);
     };
     that.deadPlayer = function(player){
+      player.head = {
+        x: -100,
+        y: -100,
+      }
       player.body = [];
       player.notes = [];
       player.dir = [0,0];
