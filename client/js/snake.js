@@ -165,14 +165,14 @@ $(document).ready(function() {
     $(document).keydown(function(e) {
         var letter = e.which;
         var direction;
-        //console.log(direction);
-        if (letter == "37" ) {
+        console.log(player.dir)
+        if (letter == "37") { //left
             direction = [-1,0];
-        } else if (letter == "39") {
+        } else if (letter == "39") { //right
             direction = [1,0];
-        } else if (letter == "38") {
+        } else if (letter == "38") { //up
             direction = [0,-1];
-        } else if (letter == "40") {
+        } else if (letter == "40") { //down
             direction = [0,1];
         };
         if (direction){
@@ -253,14 +253,19 @@ $(document).ready(function() {
     function paintSnake(snake){
       var diff = paintHead(snake.head);
       var pitchIndex=0;
+        //console.log(snake.body, "body")
       snake.body.forEach(function(part,i){
-        if (i < snake.maxLength){
-          var partPitch = snake.notes[i];
+            if (i<snake.maxLength){
+                var partPitch = snake.notes[i];
           paintPart(part, diff, pitchToColor[partPitch]);
-        } else {
-          //paintPart(part, diff, snake.hue);
+            }
+          
+         else{
+           paintPart(part, diff, snake.hue);  
+         }
+          
             
-        }
+        
       });
 
       nearByPlayers.forEach(function(other){

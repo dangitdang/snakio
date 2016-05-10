@@ -77,7 +77,9 @@ var PlayersManager = function(opts) {
           x: prev.x - player.dir[0],
           y: prev.y - player.dir[1],
         }
-        player.body.push(newNote);
+        
+          player.body.push(newNote);
+        
         if (player.notes.length >= player.maxLength){
           player.notes.splice(0,1);
         }
@@ -128,7 +130,8 @@ var PlayersManager = function(opts) {
 
     that.setDirection = function(player, dir) {
       var curDir = player.dir;
-      var sanityCheck = R.map(function(i){return i * -1;}, dir);
+      var sanityCheck = R.map(function(i){return i === 0? 0 : i *-1;}, dir);
+      //console.log(dir, "direction", sanityCheck, "sanity check")
       if (!R.equals(curDir, sanityCheck)) {
         player.dir = dir;
         return true;

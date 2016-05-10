@@ -56,9 +56,10 @@ var stepPlayers = function(){
 }
 
 var sendUpdates = function () {
+  var start = console.time('update')
   var playersId = Object.keys(sockets);
   playersId.forEach(function(id){
-    var start = console.time('collision')
+
     var player = players.getPlayer(id);
     var nearPlayers = players.nearByPlayers(player);
     var nearNotes = notes.nearByNotes(player);
@@ -85,11 +86,13 @@ var sendUpdates = function () {
         player : player,
         nearByPlayers : nearPlayers,
         nearByNotes : nearNotes,
-          nearByPowerups:nearPowerups
+        nearByPowerups:nearPowerups
       });
     }
-    //var end = console.timeEnd('collision')
+
+
   });
+//  var end = console.timeEnd('update')
 }
 
 module.exports = {
