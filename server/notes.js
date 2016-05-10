@@ -4,6 +4,7 @@ var scale = [53, 55, 57, 58, 60, 62, 64, 65];
 var NotesManager = function(opts){
   var that = this;
   var notes = [];
+  var powerups=[];
 
   that.addNotes = function(amnt){
     while (amnt--) {
@@ -15,10 +16,28 @@ var NotesManager = function(opts){
         });
     }
   };
+    
+  that.addPowerups = function(amnt){
+    while (amnt--) {
+        var position = utils.randomPosition(powerups);
+        powerups.push({
+          x : position.x,
+          y : position.y,
+          increase : utils.randomBetween(1,3)*2
+        
+        });
+    }
+  };
 
   that.decreaseNotes = function(amnt){
     while (amnt--){
       notes.pop();
+    }
+  };
+    
+  that.decreasePowerups = function(amnt){
+    while (amnt--){
+      powerups.pop();
     }
   };
 
@@ -27,6 +46,17 @@ var NotesManager = function(opts){
       for (var i = 0; i < notes.length; i++) {
         if (notes[i].x === note.x && notes[i].y === note.y) {
           notes.splice(i,1);
+          break;
+        }
+      }
+    });
+  }
+  
+  var deletePowerups = function(powerupsToDelete){
+    powerupsToDelete.forEach(function(power){
+      for (var i = 0; i < powerups.length; i++) {
+        if (powerups[i].x === power.x && powerups[i].y === power.y) {
+          powerups.splice(i,1);
           break;
         }
       }
@@ -42,11 +72,25 @@ var NotesManager = function(opts){
     }, notes);
     return R.filter(function(note){ return note;}, nearBy);
   };
+  
+    that.nearByPowerups=function(player){
+        return powerups;
+    }
 
   that.ateNote = function(player, nearBy){
     for (var i = 0; i < nearBy.length; i++) {
       if (player.head.x === nearBy[i].x && player.head.y === nearBy[i].y){
         deleteNotes([nearBy[i]]);
+        return nearBy[i];
+      }
+    }
+    return false;
+  };
+  
+    that.atePowerup = function(player, nearBy){
+    for (var i = 0; i < nearBy.length; i++) {
+      if (player.head.x === nearBy[i].x && player.head.y === nearBy[i].y){
+        deletePowerups([nearBy[i]]);
         return nearBy[i];
       }
     }

@@ -7,6 +7,7 @@ var DIRS = [
 ];
 var utils = require('../utils.js');
 var randomColor = require('randomcolor');
+
 var PlayersManager = function(opts) {
     var that = this;
     var players = [];
@@ -19,9 +20,12 @@ var PlayersManager = function(opts) {
             body: [],
             notes: [],
             lastPing: new Date().getTime(),
-            hue: randomColor()
+            hue: randomColor(),
+            instrument:"piano",
+            score:0,
+            maxLength:8
         };
-        var initNotes = [55, 58, 62];
+        var initNotes = [53, 57, 60];
         R.forEach(function(note){
           that.appendNote(player, note);
         }, initNotes);
@@ -73,11 +77,14 @@ var PlayersManager = function(opts) {
           x: prev.x - player.dir[0],
           y: prev.y - player.dir[1],
         }
-        player.body.push(newNote);
-        if (player.notes.length > 8){
+        
+          player.body.push(newNote);
+        
+        if (player.notes.length >= player.maxLength){
           player.notes.splice(0,1);
         }
         player.notes.push(note);
+        player.score+=10; //10 points per note
     };
 
     that.nearByPlayers = function(player) {
@@ -123,7 +130,8 @@ var PlayersManager = function(opts) {
 
     that.setDirection = function(player, dir) {
       var curDir = player.dir;
-      var sanityCheck = R.map(function(i){return i * -1;}, dir);
+      var sanityCheck = R.map(function(i){return i === 0? 0 : i *-1;}, dir);
+      //console.log(dir, "direction", sanityCheck, "sanity check")
       if (!R.equals(curDir, sanityCheck)) {
         player.dir = dir;
         return true;

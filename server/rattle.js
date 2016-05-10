@@ -8,6 +8,7 @@ var io;
 var rattle;
 var sockets = {};
 notes.addNotes(500);
+notes.addPowerups(100);
 var listen = function(app){
     io = socketio.listen(app);
 
@@ -32,7 +33,6 @@ var listen = function(app){
       });
 
       socket.on('playerInput', function(input){
-        console.log(input);
         if (COMMANDS.indexOf(input.cmd) > -1){
           players[input.cmd](currentPlayer,input.arg);
         } else {
@@ -56,29 +56,43 @@ var stepPlayers = function(){
 }
 
 var sendUpdates = function () {
+  var start = console.time('update')
   var playersId = Object.keys(sockets);
   playersId.forEach(function(id){
+
     var player = players.getPlayer(id);
     var nearPlayers = players.nearByPlayers(player);
     var nearNotes = notes.nearByNotes(player);
-    if (players.checkCollisions(player, nearPlayers)){
+    var nearPowerups=notes.nearByPowerups(player);
+
+      if (players.checkCollisions(player, nearPlayers)){
       sockets[id].emit('dead', {
         message : 'player dead'
       });
       players.deadPlayer(player);
     } else {
       var noteAte = notes.ateNote(player, nearNotes);
+      var powerupAte = notes.atePowerup(player,nearPowerups );
       if (noteAte) {
         players.appendNote(player, noteAte.pitch);
       }
-
+        
+      if (powerupAte) {
+          
+        player.maxLength+=powerupAte.increase;
+          console.log(player.maxLength, "max len");
+      }
       sockets[id].emit('update',{
         player : player,
         nearByPlayers : nearPlayers,
-        nearByNotes : nearNotes
+        nearByNotes : nearNotes,
+        nearByPowerups:nearPowerups
       });
     }
+
+
   });
+//  var end = console.timeEnd('update')
 }
 
 module.exports = {
