@@ -20,15 +20,15 @@ $(document).ready(function() {
     var last;
 
     var colorToNote = {
-        53 : "#F48FB1",
-        55 : "#C51162",
-        57 : "#7B1FA2",
-        58 : "#3F51B5",
-        60 : "#7986CB",
-        62 : "#006064",
-        64 : "#9ccc65",
-        65 : "#FFEE58"
-        }
+        53: "#F48FB1",
+        55: "#C51162",
+        57: "#7B1FA2",
+        58: "#3F51B5",
+        60: "#7986CB",
+        62: "#006064",
+        64: "#9ccc65",
+        65: "#FFEE58"
+    }
     var pitchToColor = {
         "53": "#F48FB1",
         "55": "#C51162",
@@ -40,11 +40,11 @@ $(document).ready(function() {
         "65": "#FFEE58"
 
     };
-    var instrumentToChannel={
-        0:0,
-        118:1,
-        57:2,
-        8:3
+    var instrumentToChannel = {
+        0: 0,
+        118: 1,
+        57: 2,
+        8: 3
     }
     var colorToNote = {
         "#F48FB1": "F",
@@ -63,71 +63,57 @@ $(document).ready(function() {
     var oldPitchListLen = 3; //number of notes from cycle before
 
     var socket = io('/rattle');
-    $('button').click(function(){
-      startGame();
+    $('button').click(function() {
+        startGame();
     });
-    var startGame = function(){
-      player.name = $('#player-name').val();
-      player.instrument= document.querySelector('input[name = "inst"]:checked').value;
+    var startGame = function() {
+        player.name = $('#player-name').val();
+        player.instrument = document.querySelector('input[name = "inst"]:checked').value;
 
-    gameStarted = true;
-      socket.emit('readyToStart',player);
-      $('#game-start').fadeOut();
-      //var counter = 750;
-      // var audioLoop = function(){
-      //   clearInterval(interval);
-      //   var numAddedNotes = player.notes.length - oldPitchListLen;
-      //   counter += (250 * numAddedNotes);
-      //   oldPitchListLen = player.notes.length;
-      //   // playSnake();
-      //   if (died){
-      //     return;
-      //   }
-      //   interval = setInterval(audioLoop, counter);
-      // }
-      // var interval = setInterval(audioLoop, counter);
-
+        gameStarted = true;
+        socket.emit('readyToStart', player);
+        $('#game-start').fadeOut();
     }
-    socket.on('playerInfo', function(playerinfo){
-      player = playerinfo;
+    socket.on('playerInfo', function(playerinfo) {
+        player = playerinfo;
 
     });
-    socket.on('gameConfig', function(size){
-      playNotes();
-      animLoop();
+    socket.on('gameConfig', function(size) {
+        playNotes();
+        animLoop();
     })
-    socket.on('update', function(updates){
-      player = updates.player;
-      notes = updates.nearByNotes;
-     
-      powerups=updates.nearByPowerups;
-      nearByPlayers = updates.nearByPlayers;
-        
-      if (last !== undefined) {
-        var now = new Date().getTime();
+    socket.on('update', function(updates) {
+        player = updates.player;
+        notes = updates.nearByNotes;
 
-        if (now - last > 100){
-          console.log(now - last)
+        powerups = updates.nearByPowerups;
+        nearByPlayers = updates.nearByPlayers;
+
+        if (last !== undefined) {
+            var now = new Date().getTime();
+
+            if (now - last > 100) {
+                console.log(now - last)
+            }
+            last = now;
+        } else {
+            last = new Date().getTime();
         }
-        last = now;
-      } else {
-        last = new Date().getTime();
-      }
     });
 
-    socket.on('dead', function(msg){
-      died = true;
+    socket.on('dead', function(msg) {
+        died = true;
     });
 
 
     function animLoop() {
-      animLoopHandle = window.requestAnimationFrame(animLoop);
-      gameLoop();
+        animLoopHandle = window.requestAnimationFrame(animLoop);
+        gameLoop();
     }
 
     MIDI.loadPlugin({
         soundfontUrl: "./soundfont2/",
-        instruments: ["acoustic_grand_piano","trumpet","synth_drum", "celesta"],
+        instruments: ["acoustic_grand_piano", "trumpet", "synth_drum", "celesta"],
         onprogress: function(state, progress) {
             //console.log(state, progress);
         },
@@ -137,43 +123,43 @@ $(document).ready(function() {
             MIDI.programChange(1, 118); // set channel 1 to synth drum
             MIDI.programChange(2, 56); //trumpet
             MIDI.programChange(3, 8); //celesta
-
-
         }
     });
-    function calculateVelocity(player, other){
-      var p1 = player.head;
-      var p2 = other.head;
-      var dist = Math.sqrt(Math.pow(p2.x - p1.x,2) + Math.pow(p2.y-p2.y,2));
-      return 80 - dist*(.7);
+
+    function calculateVelocity(player, other) {
+        var p1 = player.head;
+        var p2 = other.head;
+        var dist = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p2.y, 2));
+        return 80 - dist * (.7);
 
     }
-    function playNotes(){
-      var delay = 0;
-      var velocity = 80;
-      MIDI.noteOn(instrumentToChannel[player.instrument], player.notes[curNoteIndex], velocity, delay);
-      MIDI.noteOff(instrumentToChannel[player.instrument], player.notes[curNoteIndex], delay)
-      curNoteIndex +=1;
-      curNoteIndex = curNoteIndex % Math.max(player.maxLength, player.notes.length);
-      nearByPlayers.forEach(function(other){
-        var index = playersNoteIndex[other.id];
-        var velocity =calculateVelocity(player, other);
-        if (index !== undefined) {
-          var note = other.notes[index];
-          var channel = instrumentToChannel[other.instrument];
-          MIDI.noteOn(channel, note, velocity, delay);
-          MIDI.noteOff(channel, note, delay);
-        } else {
-          index = 1;
-          var note = other.notes[index];
-          var channel = instrumentToChannel[other.instrument];
-          MIDI.noteOn(channel, note, velocity, delay);
-          MIDI.noteOff(channel, note, delay);
-        }
-        index += 1;
-        playersNoteIndex[other.id] = index %  Math.max(other.maxLength, other.notes.length);
-      })
-      setTimeout(playNotes, 250);
+
+    function playNotes() {
+        var delay = 0;
+        var velocity = 80;
+        MIDI.noteOn(instrumentToChannel[player.instrument], player.notes[curNoteIndex], velocity, delay);
+        MIDI.noteOff(instrumentToChannel[player.instrument], player.notes[curNoteIndex], delay)
+        curNoteIndex += 1;
+        curNoteIndex = curNoteIndex % Math.min(player.maxLength, player.notes.length);
+        nearByPlayers.forEach(function(other) {
+            var index = playersNoteIndex[other.id];
+            var velocity = calculateVelocity(player, other);
+            if (index !== undefined) {
+                var note = other.notes[index];
+                var channel = instrumentToChannel[other.instrument];
+                MIDI.noteOn(channel, note, velocity, delay);
+                MIDI.noteOff(channel, note, delay);
+            } else {
+                index = 1;
+                var note = other.notes[index];
+                var channel = instrumentToChannel[other.instrument];
+                MIDI.noteOn(channel, note, velocity, delay);
+                MIDI.noteOff(channel, note, delay);
+            }
+            index += 1;
+            playersNoteIndex[other.id] = index % Math.min(other.maxLength, other.notes.length);
+        })
+        setTimeout(playNotes, 250);
     }
 
     //Moving the snake
@@ -182,19 +168,19 @@ $(document).ready(function() {
         var direction;
         console.log(player.dir)
         if (letter == "37") { //left
-            direction = [-1,0];
+            direction = [-1, 0];
         } else if (letter == "39") { //right
-            direction = [1,0];
+            direction = [1, 0];
         } else if (letter == "38") { //up
-            direction = [0,-1];
+            direction = [0, -1];
         } else if (letter == "40") { //down
-            direction = [0,1];
+            direction = [0, 1];
         };
-        if (direction){
-          socket.emit('playerInput',{
-            cmd : 'setDirection',
-            arg : direction
-          });
+        if (direction) {
+            socket.emit('playerInput', {
+                cmd: 'setDirection',
+                arg: direction
+            });
         }
 
 
@@ -203,43 +189,42 @@ $(document).ready(function() {
 
 
 
-    function gameLoop(){
-      if (died) {
-        //TODO: draw dead screen
-      }
-      else if (!disconnected) {
-        if (gameStarted) {
-          ctx.fillStyle = '#f2fbff';
-          ctx.fillRect(0,0, width, height);
-          drawGrid();
-          paintBorder();
-          paintSnake(player);
-          paintNotes();
-          paintPowerups();
+    function gameLoop() {
+        if (died) {
+            //TODO: draw dead screen
+        } else if (!disconnected) {
+            if (gameStarted) {
+                ctx.fillStyle = '#f2fbff';
+                ctx.fillRect(0, 0, width, height);
+                drawGrid();
+                paintBorder();
+                paintSnake(player);
+                paintNotes();
+                paintPowerups();
 
+            }
         }
-      }
     }
 
-    function paintNotes(){
-      var dx = (Math.floor(width/cellSize/2 - player.head.x));
-      var dy = (Math.floor(height/cellSize/2 - player.head.y));
-      if (!notes) return;
-      notes.forEach(function(note){
-        color_note(dx+note.x, dy+note.y, pitchToColor[note.pitch]);
-      });
+    function paintNotes() {
+        var dx = (Math.floor(width / cellSize / 2 - player.head.x));
+        var dy = (Math.floor(height / cellSize / 2 - player.head.y));
+        if (!notes) return;
+        notes.forEach(function(note) {
+            color_note(dx + note.x, dy + note.y, pitchToColor[note.pitch]);
+        });
 
     }
-    
-    function paintPowerups(){
+
+    function paintPowerups() {
         //console.log("powerups paint", powerups);
-      var dx = (Math.floor(width/cellSize/2 - player.head.x));
-      var dy = (Math.floor(height/cellSize/2 - player.head.y));
-      if (!powerups) return;
-      powerups.forEach(function(power){
-        color_note(dx+power.x, dy+power.y, "red");
-      });
-        
+        var dx = (Math.floor(width / cellSize / 2 - player.head.x));
+        var dy = (Math.floor(height / cellSize / 2 - player.head.y));
+        if (!powerups) return;
+        powerups.forEach(function(power) {
+            color_note(dx + power.x, dy + power.y, "red");
+        });
+
     }
 
     function check_collision(x, y, array) {
@@ -259,99 +244,98 @@ $(document).ready(function() {
         ctx.strokeStyle = color;
         ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
         ctx.fillStyle = "white";
-        if (colorToNote[color]!=undefined){
-            ctx.fillText(colorToNote[color],x * cellSize+cellSize/4, y * cellSize+cellSize*.75);
+        if (colorToNote[color] != undefined) {
+            ctx.fillText(colorToNote[color], x * cellSize + cellSize / 4, y * cellSize + cellSize * .75);
         }
 
     }
-    function paintSnake(snake){
-      var diff = paintHead(snake.head);
-      var pitchIndex=0;
+
+    function paintSnake(snake) {
+        var diff = paintHead(snake.head);
+        var pitchIndex = 0;
         //console.log(snake.body, "body")
-      snake.body.forEach(function(part,i){
-            if (i<snake.maxLength){
+        snake.body.forEach(function(part, i) {
+            if (i < snake.maxLength) {
                 var partPitch = snake.notes[i];
-          paintPart(part, diff, pitchToColor[partPitch]);
+                paintPart(part, diff, pitchToColor[partPitch] === undefined? player.hue : pitchToColor[partPitch]);
+            } else {
+                paintPart(part, diff, snake.hue);
             }
-          
-         else{
-           paintPart(part, diff, snake.hue);  
-         }
-          
-            
-        
-      });
+        });
+        nearByPlayers.forEach(function(other) {
+            paintOthers(other, diff);
 
-      nearByPlayers.forEach(function(other){
-        paintOthers(other, diff);
-
-      });
+        });
     }
 
-    function paintOthers(snake, diff){
-      paintPart(snake.head,diff,snake.hue);
-      snake.body.forEach(function(part){
-        paintPart(part,diff,snake.hue);
-      });
+    function paintOthers(snake, diff) {
+        paintPart(snake.head, diff, snake.hue);
+        snake.body.forEach(function(part) {
+            paintPart(part, diff, snake.hue);
+        });
     }
-    function paintPart(part, diff, hue){
-      var x = diff.dx + part.x;
-      var y = diff.dy + part.y;
-      color_note(x,y, hue);
-    }
-    function paintBorder(){
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = '#000000';
-      ctx.globalAlpha = 1;
-      ctx.beginPath();
-      if (player.head.x < 20){
-        ctx.moveTo((20 - player.head.x) * cellSize,0);
-        ctx.lineTo((20 - player.head.x) * cellSize,height);
-      }
-      if (player.head.x > 180){
-        ctx.moveTo((200-player.head.x+20)*cellSize, 0);
-        ctx.lineTo((200-player.head.x+20)*cellSize, height);
-      }
 
-      if (player.head.y < 20){
-        ctx.moveTo(0, (20-player.head.y) * cellSize);
-        ctx.lineTo(width, (20-player.head.y) * cellSize);
-      }
-
-      if (player.head.y > 180){
-        ctx.moveTo(0, (200-player.head.y+20) * cellSize);
-        ctx.lineTo(width, (200-player.head.y +20)*cellSize);
-      }
-      ctx.stroke();
+    function paintPart(part, diff, hue) {
+        var x = diff.dx + part.x;
+        var y = diff.dy + part.y;
+        color_note(x, y, hue);
     }
+
+    function paintBorder() {
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#000000';
+        ctx.globalAlpha = 1;
+        ctx.beginPath();
+        if (player.head.x < 20) {
+            ctx.moveTo((20 - player.head.x) * cellSize, 0);
+            ctx.lineTo((20 - player.head.x) * cellSize, height);
+        }
+        if (player.head.x > 180) {
+            ctx.moveTo((200 - player.head.x + 20) * cellSize, 0);
+            ctx.lineTo((200 - player.head.x + 20) * cellSize, height);
+        }
+
+        if (player.head.y < 20) {
+            ctx.moveTo(0, (20 - player.head.y) * cellSize);
+            ctx.lineTo(width, (20 - player.head.y) * cellSize);
+        }
+
+        if (player.head.y > 180) {
+            ctx.moveTo(0, (200 - player.head.y + 20) * cellSize);
+            ctx.lineTo(width, (200 - player.head.y + 20) * cellSize);
+        }
+        ctx.stroke();
+    }
+
     function drawGrid() {
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = '#000000';
-      ctx.globalAlpha = 0.15;
-      ctx.beginPath();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#000000';
+        ctx.globalAlpha = 0.15;
+        ctx.beginPath();
 
-      for (var x = 0; x < width; x += cellSize){
-        ctx.moveTo(x,0);
-        ctx.lineTo(x,height);
-      }
+        for (var x = 0; x < width; x += cellSize) {
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, height);
+        }
 
-      for (var y = 0; y < height; y += cellSize){
-        ctx.moveTo(0,y);
-        ctx.lineTo(width, y);
-      }
+        for (var y = 0; y < height; y += cellSize) {
+            ctx.moveTo(0, y);
+            ctx.lineTo(width, y);
+        }
 
-      ctx.stroke();
-      ctx.globalAlpha = 1;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
     }
-    function paintHead(head){
-      var dx = (Math.floor(width/cellSize/2)-head.x);
-      var dy = (Math.floor(height/cellSize/2)-head.y);
-      var headColor=pitchToColor[player.notes[0]];
-      color_note(head.x+dx,head.y+dy, player.hue);
-      return {
-        dx : dx,
-        dy : dy,
-      }
+
+    function paintHead(head) {
+        var dx = (Math.floor(width / cellSize / 2) - head.x);
+        var dy = (Math.floor(height / cellSize / 2) - head.y);
+        var headColor = pitchToColor[player.notes[0]];
+        color_note(head.x + dx, head.y + dy, player.hue);
+        return {
+            dx: dx,
+            dy: dy,
+        }
 
     }
 });

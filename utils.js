@@ -10,6 +10,15 @@ module.exports.randomPosition = function(notes) {
   };
 };
 
+module.exports.makeGrid = function(width, height){
+  var grid = [];
+  for (var i=0; i < height; i ++){
+    grid.push([]);
+    grid[i].push(new Array(width));
+  }
+  return grid;
+}
+
 module.exports.getDistance = function(p1, p2){
   return Math.pow(p2.x - p1.x,2) + Math.pow(p2.y-p2.y,2);
 }

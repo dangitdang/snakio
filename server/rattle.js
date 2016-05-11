@@ -1,15 +1,15 @@
-var players = require('./player.js')({});
-var notes   = require('./notes.js')({});
+var utils = require('../utils.js');
 var socketio = require('socket.io');
 var config = require('../config.js');
-
 var COMMANDS = ['setDirection','activatePower'];
 var io;
 var rattle;
 var sockets = {};
-
+var grid = utils.makeGrid(200, 200);
+var players = require('./player.js')(grid, {});
+var notes   = require('./notes.js')(grid, {});
 notes.addNotes(300);
-notes.addPowerups(100);
+notes.addPowerups(50);
 var listen = function(app){
     io = socketio.listen(app);
 
@@ -68,7 +68,7 @@ var sendUpdates = function () {
     var nearNotes = notes.nearByNotes(player);
     var nearPowerups=notes.nearByPowerups(player);
 
-      if (players.checkCollisions(player, nearPlayers)){
+      if (players.checkCollisions(player)){
       sockets[id].emit('dead', {
         message : 'player dead'
       });
@@ -81,7 +81,6 @@ var sendUpdates = function () {
       }
 
       if (powerupAte) {
-
         player.maxLength+=powerupAte.increase;
           console.log(player.maxLength, "max len");
       }
@@ -95,7 +94,7 @@ var sendUpdates = function () {
 
 
   });
-//  var end = console.timeEnd('update')
+var end = console.timeEnd('update')
 }
 
 module.exports = {
