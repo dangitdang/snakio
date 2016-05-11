@@ -1,5 +1,5 @@
 var utils = require('../utils.js');
-var channels=[0,118, 57,8,109, 105,75, 36];
+var channels=[0, 57,8,109, 105, 36];
 var durations = [.125, .25, .5];
 
 module.exports.increaseMaxLength = function(player){
