@@ -75,6 +75,7 @@ $(document).ready(function() {
     player.instrument = document.querySelector('input[name = "inst"]:checked').value;
 
     gameStarted = true;
+    died = false;
     socket.emit('readyToStart', player);
     $('#game-start').fadeOut();
       setInterval(updateScoreTable, 500);
@@ -95,7 +96,7 @@ $(document).ready(function() {
     nearByPlayers = updates.nearByPlayers;
     scoreList = updates.scoreList.reverse();
     instrumentPowers = updates.nearByInstruments;
-
+    console.log('updates');
     if (last !== undefined) {
       var now = new Date().getTime();
 
@@ -108,9 +109,9 @@ $(document).ready(function() {
     }
   });
 
-  socket.on('dead', function(player) {
+  socket.on('dead', function(newPlayer) {
     died = true;
-    player = player;
+    player = newPlayer;
   });
 
 
@@ -130,7 +131,7 @@ $(document).ready(function() {
     animLoopHandle = window.requestAnimationFrame(animLoop);
     gameLoop();
   }
-  
+
   MIDI.loadPlugin({
     soundfontUrl: "./soundfont2/",
     instruments: ["acoustic_grand_piano", "trumpet",  "celesta", "bagpipe", "banjo",  "slap_bass_1"],
@@ -155,40 +156,13 @@ $(document).ready(function() {
     var p2 = other.head;
     var dist = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p2.y, 2));
     return 80 - dist * (.7);
-
-
   }
-
-  function playNotes() {
-    var delay = 0;
-    var velocity = 80;
-    MIDI.noteOn(instrumentToChannel[player.instrument], player.notes[curNoteIndex], velocity, delay);
-    MIDI.noteOff(instrumentToChannel[player.instrument], player.notes[curNoteIndex], delay)
-    curNoteIndex += 1;
-    curNoteIndex = curNoteIndex % Math.min(player.maxLength, player.notes.length);
-    nearByPlayers.forEach(function(other) {
-      var index = playersNoteIndex[other.id];
-      var velocity = calculateVelocity(player, other);
-      if (index !== undefined) {
-        var note = other.notes[index];
-        var channel = instrumentToChannel[other.instrument];
-        MIDI.noteOn(channel, note, velocity, delay);
-        MIDI.noteOff(channel, note, delay);
-      } else {
-        index = 1;
-        var note = other.notes[index];
-        var channel = instrumentToChannel[other.instrument];
-        MIDI.noteOn(channel, note, velocity, delay);
-        MIDI.noteOff(channel, note, delay);
-      }
-    });
-
     socket.on('dead', function(msg){
       died = true;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     });
-     
-    
+
+
     function updateScoreTable(){
         var rank=1;
         $('#scoreTable > tbody').empty();
@@ -198,7 +172,7 @@ $(document).ready(function() {
         $('#scoreTable').find('tbody').append('<tr><td>' +rank+ '</td><td>'+ player.id+'</td><td>' +player.score+ '</td></tr>');
         rank+=1;
     });
-    
+
     }
     function animLoop() {
       animLoopHandle = window.requestAnimationFrame(animLoop);
@@ -228,17 +202,18 @@ $(document).ready(function() {
       var p1 = player.head;
       var p2 = other.head;
       var dist = Math.sqrt(Math.pow(p2.x - p1.x,2) + Math.pow(p2.y-p2.y,2));
-      return 80 - dist*(.7);
-
-
+      return 80 - dist*(1.2);
     }
     function playNotes(){
+      if (died){
+        return;
+      }
       var delay = 0;
       var velocity = 80;
       MIDI.noteOn(instrumentToChannel[player.instrument], player.notes[curNoteIndex], velocity, delay);
       MIDI.noteOff(instrumentToChannel[player.instrument], player.notes[curNoteIndex], delay)
       curNoteIndex +=1;
-      curNoteIndex = curNoteIndex % Math.max(player.maxLength, player.notes.length);
+      curNoteIndex = curNoteIndex % Math.min(player.maxLength, player.notes.length);
       nearByPlayers.forEach(function(other){
         var index = playersNoteIndex[other.id];
         var velocity =calculateVelocity(player, other);
@@ -255,7 +230,7 @@ $(document).ready(function() {
           MIDI.noteOff(channel, note, delay);
         }
         index += 1;
-        playersNoteIndex[other.id] = index %  Math.max(other.maxLength, other.notes.length);
+        playersNoteIndex[other.id] = index %  Math.min(other.maxLength, other.notes.length);
       })
       setTimeout(playNotes, 250);
     }
@@ -279,12 +254,7 @@ $(document).ready(function() {
             arg : direction
           });
         }
-
-
-
-    })
-    setTimeout(playNotes, 250);
-  }
+    });
 
 
   //Moving the snake
@@ -314,9 +284,8 @@ $(document).ready(function() {
     if (died) {
       //TODO: draw dead screen
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-          document.getElementById("canvas").style.display="none";
-         document.getElementById("game-start").style.display="block";
-          document.getElementById("gameOver").style.display="block";
+        document.getElementById("game-start").style.display="block";
+        document.getElementById("gameOver").style.display="block";
         document.getElementById("score").innerHTML="Your Score: "+ player.score.toString();
     } else if (!disconnected) {
       if (gameStarted) {

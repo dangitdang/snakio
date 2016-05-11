@@ -83,7 +83,6 @@ var updateScores=function(){
 var sendUpdates = function () {
   var start = console.time('update')
   if (Math.random() < .03 && notes.totalPowerUps() < 70){
-    console.log('New Power up spawned');
     var power = utils.randomBetween(0,3);
     notes.addPowerups(1,POWERS[power]);
   }
@@ -92,10 +91,14 @@ var sendUpdates = function () {
   var playersId = Object.keys(sockets);
   playersId.forEach(function(id){
     var player = players.getPlayer(id);
+    if (player === undefined){
+      return;
+    }
     if (player.dir[0] === player.dir[1]){
       return;
     }
     var nearPlayers = players.nearByPlayers(player);
+
     var nearByItems = notes.nearByNotes(player);
     var nearNotes = nearByItems.filter(function(i){
       return i.type === 'NOTE';
@@ -104,10 +107,11 @@ var sendUpdates = function () {
       return i.type === 'POWERUP'
     });
     if (players.checkCollisions(player, nearPlayers)){
-      players.deadPlayer(player);
+      players.removePlayer(player);
       var newPlayer = players.newPlayer(id);
+      console.log(newPlayer);
       sockets[id].emit('dead', newPlayer );
-      
+
     } else {
       var thingAte = notes.eatNote(player);
       if (thingAte) {
