@@ -92,6 +92,9 @@ var sendUpdates = function () {
   var playersId = Object.keys(sockets);
   playersId.forEach(function(id){
     var player = players.getPlayer(id);
+    if (player === undefined){
+      return;
+    }
     if (player.dir[0] === player.dir[1]){
       return;
     }
@@ -104,10 +107,11 @@ var sendUpdates = function () {
       return i.type === 'POWERUP'
     });
     if (players.checkCollisions(player, nearPlayers)){
-      players.deadPlayer(player);
+      players.removePlayer(player);
       var newPlayer = players.newPlayer(id);
+      console.log(newPlayer);
       sockets[id].emit('dead', newPlayer );
-      
+
     } else {
       var thingAte = notes.eatNote(player);
       if (thingAte) {
