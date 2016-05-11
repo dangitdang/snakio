@@ -24,6 +24,7 @@ var PlayersManager = function(grid, opts) {
       hue: randomColor(),
       instrument: 0,
       noteDuration: .25,
+      ticks:2,  //how many .125 cycles to get noteDuration
       invisible: false,
       score: 0,
       maxLength: 8
