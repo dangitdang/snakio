@@ -162,7 +162,7 @@ var PlayersManager = function(grid, opts) {
     var nearByPlayers= nearBy2.map(function(id) {
       return that.getPlayer(id);
     });
-    return nearByPlayers.filer(function(p){
+    return nearByPlayers.filter(function(p){
       return p !== undefined;
     })
 
