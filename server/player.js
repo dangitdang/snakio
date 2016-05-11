@@ -197,7 +197,6 @@ var PlayersManager = function(grid, opts) {
     if (curPosition.length < 2) {
       return false;
     } else {
-      console.log(curPosition);
       var otherObjects = curPosition.filter(function(o) {
         return o.type === 'PLAYER'
       });
