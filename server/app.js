@@ -8,7 +8,7 @@ app.use(express.static(__dirname+'/../client'));
 var port = process.env.PORT || 3000;
 
 
-
+setInterval(rattle.updateScore,100);
 setInterval(rattle.update,150);
 
 http.listen(port, function() {

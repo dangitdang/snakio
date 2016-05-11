@@ -1,15 +1,15 @@
 var R = require('ramda');
 var utils = require('../utils.js');
 var scale = [53, 55, 57, 58, 60, 62, 64, 65];
+
 var NotesManager = function(grid,opts){
-  var grid = grid;
   var that = this;
-  var notes = [];
-  var powerups=[];
+  var grid = grid;
+  var powerups = 0;
 
   that.addNotes = function(amnt){
     while (amnt--) {
-        var position = utils.randomPosition(notes);
+        var position = utils.randomPosition();
         if (grid[position.y][position.x] === undefined){
           grid[position.y][position.x] = [{
             x : position.x,
@@ -23,30 +23,25 @@ var NotesManager = function(grid,opts){
     }
   };
 
-  that.addPowerups = function(amnt){
+  that.totalPowerUps = function() {
+    return powerups;
+  }
+
+  that.addPowerups = function(amnt, effect){
     while (amnt--) {
         var position = utils.randomPosition(powerups);
-        powerups.push({
+        var newPower = {
           x : position.x,
           y : position.y,
-          increase : utils.randomBetween(1,3)*2
-        });
+          type : 'POWERUP',
+          effect : effect
+        }
         if (grid[position.y][position.x] === undefined){
-          grid[position.y][position.x] = [{
-            x : position.x,
-            y : position.y,
-            type : 'POWERUP',
-            increase : utils.randomBetween(1,3)*2
-          }]
+          grid[position.y][position.x] = [newPower]
+          powerups++;
         } else {
           amnt++
         }
-    }
-  };
-
-  that.decreasePowerups = function(amnt){
-    while (amnt--){
-      powerups.pop();
     }
   };
 
@@ -83,7 +78,7 @@ var NotesManager = function(grid,opts){
         }
       }
     }
-    return nearBy2
+    return nearBy2;
   };
 
   that.eatNote = function(player){

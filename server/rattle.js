@@ -1,15 +1,24 @@
 var utils = require('../utils.js');
 var socketio = require('socket.io');
 var config = require('../config.js');
+var powerups = require('./powerups.js');
 var COMMANDS = ['setDirection','activatePower'];
+var POWERS = ['changeInstrument', 'increaseMaxLength', 'increaseMaxLength'];
 var io;
 var rattle;
 var sockets = {};
 var grid = utils.makeGrid(200, 200);
 var players = require('./player.js')(grid, {});
 var notes   = require('./notes.js')(grid, {});
-notes.addNotes(300);
-notes.addPowerups(50);
+
+notes.addNotes(200);
+
+for (var i = 0; i < 20; i++) {
+  var power = utils.randomBetween(0,3);
+  notes.addPowerups(1,POWERS[power]);
+}
+
+var SCORES = [];
 var listen = function(app){
     io = socketio.listen(app);
 
@@ -56,8 +65,28 @@ var stepPlayers = function(){
   players.moveAll();
 }
 
+var updateScores=function(){
+    SCORES = players.getScores();
+    SCORES.sort(function(a, b){
+    var keyA = a.score,
+        keyB = b.score;
+    // Compare the 2 dates
+    if(keyA < keyB) return -1;
+    if(keyA > keyB) return 1;
+    return 0;
+});
+//    console.log(scores);
+//    io.sockets.emit("score",scores)
+
+}
+
 var sendUpdates = function () {
   var start = console.time('update')
+  if (Math.random() < .03 && notes.totalPowerUps() < 70){
+    console.log('New Power up spawned');
+    var power = utils.randomBetween(0,3);
+    notes.addPowerups(1,POWERS[power]);
+  }
   players.moveAll();
 
   var playersId = Object.keys(sockets);
@@ -74,8 +103,7 @@ var sendUpdates = function () {
     var nearPowerups = nearByItems.filter(function(i){
       return i.type === 'POWERUP'
     });
-
-      if (players.checkCollisions(player)){
+    if (players.checkCollisions(player, nearPlayers)){
       sockets[id].emit('dead', {
         message : 'player dead'
       });
@@ -86,22 +114,24 @@ var sendUpdates = function () {
         if (thingAte.type === 'NOTE') {
           players.appendNote(player, thingAte.pitch);
         } else {
-          player.maxLength+=thingAte.increase;
+          powerups[thingAte.effect](player);
         }
       }
       sockets[id].emit('update',{
         player : player,
         nearByPlayers : nearPlayers,
         nearByNotes : nearNotes,
-        nearByPowerups:nearPowerups
+        nearByPowerups:nearPowerups,
+        scoreList : SCORES
       });
     }
   });
-var end = console.timeEnd('update')
+// var end = console.timeEnd('update')
 }
 
 module.exports = {
   listen : listen,
   step : stepPlayers,
-  update : sendUpdates
+  update : sendUpdates,
+  updateScore:updateScores
 }

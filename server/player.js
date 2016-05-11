@@ -22,9 +22,11 @@ var PlayersManager = function(grid, opts) {
             notes: [],
             lastPing: new Date().getTime(),
             hue: randomColor(),
-            instrument: "piano",
-            score: 0,
-            maxLength: 8
+            instrument: 0,
+            noteDuration: .25,
+            invisible : false,
+            score:0,
+            maxLength:8
         };
         var initNotes = [53, 57, 60];
         R.forEach(function(note) {
@@ -217,6 +219,21 @@ var PlayersManager = function(grid, opts) {
         }
         return false;
     };
+
+
+    that.getScores=function(){
+        var scores=[]
+        players.forEach(function(player){
+            var score={
+                id:player.name,
+                score:player.score
+            }
+            scores.push(score);
+        });
+        return scores;
+
+    }
+
     return that;
 };
 
