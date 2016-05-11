@@ -95,7 +95,7 @@ $(document).ready(function() {
       notes = updates.nearByNotes;
       powerups=updates.nearByPowerups;
       nearByPlayers = updates.nearByPlayers;
-      scoreList = updates.scoreList;
+      scoreList = updates.scoreList.reverse();
       instrumentPowers=updates.nearByInstruments;
         
       if (last !== undefined) {
@@ -115,13 +115,12 @@ $(document).ready(function() {
     });
      
     
-    function updateScoreTable(scores){
+    function updateScoreTable(){
         var rank=1;
-        scores.reverse();
         $('#scoreTable > tbody').empty();
         $('#scoreTable').append('<tr><th>Rank</th><th>Name</th> <th>Points</th></tr>');
 
-    scores.forEach(function(player){
+    scoreList.forEach(function(player){
         $('#scoreTable').find('tbody').append('<tr><td>' +rank+ '</td><td>'+ player.id+'</td><td>' +player.score+ '</td></tr>');
         rank+=1;
     });
@@ -131,7 +130,7 @@ $(document).ready(function() {
       animLoopHandle = window.requestAnimationFrame(animLoop);
       gameLoop();
     }
-
+    setInterval(updateScoreTable, 500);
     MIDI.loadPlugin({
         soundfontUrl: "./soundfont2/",
         instruments: ["acoustic_grand_piano","trumpet","synth_drum", "celesta", "bagpipe", "banjo","pan_flute","slap_bass_1"],
@@ -227,7 +226,7 @@ $(document).ready(function() {
           paintNotes();
           paintPowerups(powerups,"red");
           paintPowerups(instrumentPowers,"green");
-          updateScoreTable(scoreList)
+          
 
         }
       }
