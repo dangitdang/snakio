@@ -344,10 +344,8 @@ $(document).ready(function() {
   }
 
   function paintPowerups(array) {
-    //console.log("powerups paint", powerups);
     var dx = (Math.floor(width / cellSize / 2 - player.head.x));
     var dy = (Math.floor(height / cellSize / 2 - player.head.y));
-    //console.log(dx, dy, "powerup dx dy");
     if (!array) return;
     array.forEach(function(power) {
       color_powerup(dx + power.x, dy + power.y, powerToColor[power.effect]);
@@ -365,6 +363,36 @@ $(document).ready(function() {
     if (colorToNote[color] != undefined) {
       ctx.fillText(colorToNote[color], x * cellSize + cellSize / 4, y * cellSize + cellSize * .75);
     }
+
+  }
+    //semicircular head
+    function color_head(x, y, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x * cellSize, y * cellSize, cellSize/2.0, cellSize/2.0);
+    ctx.beginPath();
+    if (player.dir[0]==0){ //up or down
+        if(player.dir[1]==-1){ //up
+            ctx.arc(x * cellSize+cellSize/2.0, y * cellSize+cellSize, cellSize/2.0, 0, Math.PI, true);
+        }
+        else{ //down
+            ctx.arc(x * cellSize+cellSize/2.0, y * cellSize, cellSize/2.0, 0, Math.PI, false);
+        }
+    }
+    
+        
+    else { //left or right
+        if (player.dir[0]==-1){ //left
+        ctx.arc(x * cellSize+cellSize, y * cellSize+cellSize/2.0, cellSize/2.0, 0, Math.PI*2, true);
+            
+        }
+        else{ //right
+          ctx.arc(x * cellSize, y * cellSize+cellSize/2.0, cellSize/2.0, 0, Math.PI*2, true);  
+        }
+        }
+    
+    ctx.closePath();
+    ctx.fill();
+    
 
   }
 
@@ -460,7 +488,7 @@ $(document).ready(function() {
     var dx = (Math.floor(width / cellSize / 2) - head.x);
     var dy = (Math.floor(height / cellSize / 2) - head.y);
     var headColor = pitchToColor[player.notes[0]];
-    color_note(head.x + dx, head.y + dy, player.hue);
+    color_head(head.x + dx, head.y + dy, player.hue);
     return {
       dx: dx,
       dy: dy,
