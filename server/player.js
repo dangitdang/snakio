@@ -50,6 +50,7 @@ var PlayersManager = function(grid, opts) {
                 break;
             }
         }
+        that.deadPlayer(player);
     };
 
     that.getPlayer = function(id) {
@@ -134,17 +135,6 @@ var PlayersManager = function(grid, opts) {
     };
 
     that.nearByPlayers = function(player) {
-        // var nearBy = R.map(function(other) {
-        //     if (other.id === player.id) {
-        //         return;
-        //     }
-        //     for (var i = 0; i < other.body.length; i++) {
-        //         if (utils.checkDistance(player.head, other.body[i],40,40)) {
-        //             return other;
-        //         }
-        //     }
-        // }, players);
-        // return R.filter(function(other) { return other; }, nearBy);
         var nearBy2 = []
         var minX = Math.max(player.head.x - 20, 0);
         var maxX = Math.min(player.head.x + 20, 199);
@@ -180,27 +170,12 @@ var PlayersManager = function(grid, opts) {
             console.log(e);
           }
         })
+        player.head = {};
         player.body = [];
         player.notes = [];
 
     }
     that.checkCollisions = function(player, nearBy) {
-        // for (var i = 0; i < nearBy.length; i++) {
-        //     var other = nearBy[i];
-        //     for (var j = 0; j < other.body.length; j++) {
-        //         var pos = other.body[j];
-        //         if (pos.x === player.head.x && pos.y === player.head.y) {
-        //             return true;
-        //         }
-        //     }
-        // }
-        //
-        // for (var i = 0; i < player.body.length; i++) {
-        //     var part = player.body[i];
-        //     if (part.x === player.head.x && part.y === player.head.y) {
-        //         return true;
-        //     }
-        // }
         if (player.head.x < 0 || player.head.x > 199 || player.head.y < 0 || player.head.y > 199) {
             return true;
         }

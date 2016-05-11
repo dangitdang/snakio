@@ -20,11 +20,6 @@ var NotesManager = function(grid,opts){
         } else {
           amnt++
         }
-        notes.push({
-          x : position.x,
-          y : position.y,
-          pitch : scale[utils.randomBetween(0,7)]
-        });
     }
   };
 
@@ -36,6 +31,16 @@ var NotesManager = function(grid,opts){
           y : position.y,
           increase : utils.randomBetween(1,3)*2
         });
+        if (grid[position.y][position.x] === undefined){
+          grid[position.y][position.x] = [{
+            x : position.x,
+            y : position.y,
+            type : 'POWERUP',
+            increase : utils.randomBetween(1,3)*2
+          }]
+        } else {
+          amnt++
+        }
     }
   };
 
@@ -45,44 +50,23 @@ var NotesManager = function(grid,opts){
     }
   };
 
-  var deleteNotes = function(notesToDelete){
-    // notesToDelete.forEach(function(note){
-    //   for (var i = 0; i < notes.length; i++) {
-    //     if (notes[i].x === note.x && notes[i].y === note.y) {
-    //       notes.splice(i,1);
-    //       break;
-    //     }
-    //   }
-    // });
-    notesToDelete.forEach(function(note){
-      var prevGrid = grid[note.y][note.x];
+  var deleteNotes = function(noteToDelete){
+      var prevGrid = grid[noteToDelete.y][noteToDelete.x];
       var newGridValue = prevGrid.filter(function(i){
         return i.type !== 'NOTE'
       });
-      grid[note.y][note.x] = newGridValue;
-    });
+      grid[noteToDelete.y][noteToDelete.x] = newGridValue;
   }
 
-  var deletePowerups = function(powerupsToDelete){
-    powerupsToDelete.forEach(function(power){
-      for (var i = 0; i < powerups.length; i++) {
-        if (powerups[i].x === power.x && powerups[i].y === power.y) {
-          powerups.splice(i,1);
-          break;
-        }
-      }
-    });
+  var deletePowerups = function(powerupToDelete){
+      var prevGrid = grid[powerupToDelete.y][powerupToDelete.x];
+      var newGridValue = prevGrid.filter(function(i){
+        return i.type !== 'POWERUP'
+      });
+      grid[powerupToDelete.y][powerupToDelete.x] = newGridValue;
   }
 
   that.nearByNotes = function(player){
-    // var nearBy = R.map(function(note){
-    //   if (utils.checkDistance(player.head, note, 40, 40)){
-    //     return note;
-    //   }
-    //   return;
-    // }, notes);
-    // return R.filter(function(note){ return note;}, nearBy);
-
     var nearBy2 = []
     var minX = Math.max(player.head.x - 20,0);
     var maxX = Math.min(player.head.x + 20, 199);
@@ -92,7 +76,7 @@ var NotesManager = function(grid,opts){
       for (var y = minY; y < maxY; y++) {
         if (grid[y][x] !== undefined){
           grid[y][x].forEach(function(note){
-            if (note.type === 'NOTE'){
+            if (note.type === 'NOTE' || note.type === 'POWERUP'){
               nearBy2.push(note);
             }
           })
@@ -102,27 +86,23 @@ var NotesManager = function(grid,opts){
     return nearBy2
   };
 
-    that.nearByPowerups=function(player){
-        return powerups;
-    }
-
-  that.ateNote = function(player, nearBy){
-    for (var i = 0; i < nearBy.length; i++) {
-      if (player.head.x === nearBy[i].x && player.head.y === nearBy[i].y){
-        deleteNotes([nearBy[i]]);
-        that.addNotes(1);
-        return nearBy[i];
-      }
-    }
-
-    return false;
-  };
-
-    that.atePowerup = function(player, nearBy){
-    for (var i = 0; i < nearBy.length; i++) {
-      if (player.head.x === nearBy[i].x && player.head.y === nearBy[i].y){
-        deletePowerups([nearBy[i]]);
-        return nearBy[i];
+  that.eatNote = function(player){
+    var gridValue = grid[player.head.y][player.head.x];
+    var notes = gridValue.filter(function(i){
+      return i.type === 'NOTE' || i.type === 'POWERUP'
+    });
+    for (var i = 0; i < gridValue.length; i++) {
+      var note = gridValue[i];
+      if (note.type === 'PLAYER') {
+        continue;
+      } else {
+        if (note.type ==='NOTE') {
+          deleteNotes(note);
+          that.addNotes(1);
+        } else {
+          deletePowerups(note);
+        }
+        return note;
       }
     }
     return false;

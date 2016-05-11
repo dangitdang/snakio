@@ -62,11 +62,18 @@ var sendUpdates = function () {
 
   var playersId = Object.keys(sockets);
   playersId.forEach(function(id){
-
     var player = players.getPlayer(id);
+    if (player.dir[0] === player.dir[1]){
+      return;
+    }
     var nearPlayers = players.nearByPlayers(player);
-    var nearNotes = notes.nearByNotes(player);
-    var nearPowerups=notes.nearByPowerups(player);
+    var nearByItems = notes.nearByNotes(player);
+    var nearNotes = nearByItems.filter(function(i){
+      return i.type === 'NOTE';
+    })
+    var nearPowerups = nearByItems.filter(function(i){
+      return i.type === 'POWERUP'
+    });
 
       if (players.checkCollisions(player)){
       sockets[id].emit('dead', {
@@ -74,15 +81,13 @@ var sendUpdates = function () {
       });
       players.deadPlayer(player);
     } else {
-      var noteAte = notes.ateNote(player, nearNotes);
-      var powerupAte = notes.atePowerup(player,nearPowerups );
-      if (noteAte) {
-        players.appendNote(player, noteAte.pitch);
-      }
-
-      if (powerupAte) {
-        player.maxLength+=powerupAte.increase;
-          console.log(player.maxLength, "max len");
+      var thingAte = notes.eatNote(player);
+      if (thingAte) {
+        if (thingAte.type === 'NOTE') {
+          players.appendNote(player, thingAte.pitch);
+        } else {
+          player.maxLength+=thingAte.increase;
+        }
       }
       sockets[id].emit('update',{
         player : player,
@@ -91,8 +96,6 @@ var sendUpdates = function () {
         nearByPowerups:nearPowerups
       });
     }
-
-
   });
 var end = console.timeEnd('update')
 }
