@@ -27,7 +27,8 @@ $(document).ready(function() {
   }
   var powerToColor = {
       'changeInstrument' : 'green',
-      'increaseMaxLength' : 'red'
+      'increaseMaxLength' : 'red',
+      'changeNoteDuration': "yellow"
   }
   var textInfo;
   var pitchToColor = [];
@@ -193,22 +194,29 @@ $(document).ready(function() {
       var dist = Math.sqrt(Math.pow(p2.x - p1.x,2) + Math.pow(p2.y-p2.y,2));
       return 80 - dist*(1.2);
     }
+
+    var tickCount=0;
     function playNotes(){
       if (died){
         return;
       }
       var delay = 0;
       var velocity = 80;
-      MIDI.noteOn(instrumentToChannel[player.instrument], player.notes[curNoteIndex], velocity, delay);
+      if (tickCount%player.ticks==0){
+          MIDI.noteOn(instrumentToChannel[player.instrument], player.notes[curNoteIndex], velocity, delay);
       MIDI.noteOff(instrumentToChannel[player.instrument], player.notes[curNoteIndex], delay)
       curNoteIndex +=1;
       curNoteIndex = curNoteIndex % Math.min(player.maxLength, player.notes.length);
-      nearByPlayers.forEach(function(other){
-        var index = playersNoteIndex[other.id];
+
+      }
+    nearByPlayers.forEach(function(other){
+        var index = playersNoteIndex[other.id]; //only increment if %==0
         var velocity =calculateVelocity(player, other);
-        if (index !== undefined) {
+         if (tickCount%other.ticks==0){
+             if (index !== undefined) { //if index exists, only want to incremient if %0
           var note = other.notes[index];
           var channel = instrumentToChannel[other.instrument];
+
           MIDI.noteOn(channel, note, velocity, delay);
           MIDI.noteOff(channel, note, delay);
         } else {
@@ -220,8 +228,13 @@ $(document).ready(function() {
         }
         index += 1;
         playersNoteIndex[other.id] = index %  Math.min(other.maxLength, other.notes.length);
-      })
-      setTimeout(playNotes, 250);
+         }
+
+      });
+
+
+      tickCount+=1;
+      setTimeout(playNotes, 125);
     }
 
   //Moving the snake
@@ -302,7 +315,7 @@ $(document).ready(function() {
   }
 
     //semicircular head
-    function color_head(x, y, color) {
+  function color_head(x, y, color) {
     ctx.fillStyle = color;
 
     ctx.beginPath();
