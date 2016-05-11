@@ -15,7 +15,7 @@ notes.addNotes(200);
 
 for (var i = 0; i < 20; i++) {
   var power = utils.randomBetween(0,3);
-  notes.addPowerups(1,POWERS[2]);
+  notes.addPowerups(1,POWERS[power]);
 }
 
 var SCORES = [];

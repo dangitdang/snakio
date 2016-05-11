@@ -1,5 +1,5 @@
 var utils = require('../utils.js');
-var channels=[0, 57,8,109, 105, 36];
+var channels=[0, 57,8,109, 105,36];
 var durations = [.125, .25, .5];
 
 module.exports.increaseMaxLength = function(player){
@@ -8,7 +8,7 @@ module.exports.increaseMaxLength = function(player){
 }
 
 module.exports.changeInstrument = function(player){
-  var value = channels[utils.randomBetween(0,8)]
+  var value = channels[utils.randomBetween(0,6)]
   player.instrument = value;
 }
 
