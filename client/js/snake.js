@@ -150,7 +150,6 @@ $(document).ready(function() {
     soundfontUrl: "./soundfont2/",
     instruments: ["acoustic_grand_piano", "trumpet",  "celesta", "bagpipe", "banjo",  "slap_bass_1"],
     onprogress: function(state, progress) {
-      console.log(progress*100);
       $('#progress-bar').progress({percent : progress*100})
       //console.log(state, progress);
     },
@@ -192,7 +191,7 @@ $(document).ready(function() {
       var p1 = player.head;
       var p2 = other.head;
       var dist = Math.sqrt(Math.pow(p2.x - p1.x,2) + Math.pow(p2.y-p2.y,2));
-      return 80 - dist*(1.2);
+      return 80 - dist*(.5);
     }
 
     var tickCount=0;
