@@ -196,13 +196,10 @@ var PlayersManager = function(grid, opts) {
     } else {
       console.log(curPosition);
       var otherObjects = curPosition.filter(function(o) {
-        return o.type !== 'PLAYER'
+        return o.type === 'PLAYER'
       });
-
-      for (var i = 0; i < otherObjects.length; i++) {
-        if (otherObjects[i].type === 'PLAYER') {
-          return true
-        }
+      if (otherObjects.length > 1){
+        return true;
       }
     }
 
