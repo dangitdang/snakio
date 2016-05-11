@@ -145,7 +145,7 @@ var PlayersManager = function(grid, opts) {
         for (var x = minX; x < maxX; x++) {
             for (var y = minY; y < maxY; y++) {
                 if (grid[y][x] !== undefined && grid[y][x].type === 'PLAYER') {
-                    if (nearBy2.indexOf(grid[y][x].playerID) >-1){
+                    if (!(nearBy2.indexOf(grid[y][x].playerID) > -1)){
                       nearBy2.push(grid[y][x].playerID);
                     }
                 }
