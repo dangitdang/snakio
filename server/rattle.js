@@ -3,7 +3,7 @@ var socketio = require('socket.io');
 var config = require('../config.js');
 var powerups = require('./powerups.js');
 var COMMANDS = ['setDirection','activatePower'];
-var POWERS = ['changeInstrument', 'increaseMaxLength', 'increaseMaxLength'];
+var POWERS = ['changeInstrument', 'increaseMaxLength', 'changeNoteDuration'];
 var io;
 var rattle;
 var sockets = {};
@@ -51,6 +51,9 @@ var listen = function(app){
           });
         }
       });
+    
+        
+        
 
       socket.on('disconnect', function(){
         players.removePlayer(currentPlayer);

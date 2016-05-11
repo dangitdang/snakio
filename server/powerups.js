@@ -13,8 +13,9 @@ module.exports.changeInstrument = function(player){
 }
 
 module.exports.changeNoteDuration = function(player){
-  var value = utils.randomBetween(0,3);
+  var value = durations[utils.randomBetween(0,3)];
   player.noteDuration = value;
+  player.ticks=value/.125;
 }
 
 module.exports.invisible = function(player){
