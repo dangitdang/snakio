@@ -101,7 +101,9 @@ var sendUpdates = function () {
       return;
     }
     var nearPlayers = players.nearByPlayers(player);
-    console.log(nearPlayers);
+    if (nearPlayers.length > 0) {
+      player.score += 1 * nearPlayers.length;
+    }
     var nearByItems = notes.nearByNotes(player);
     var nearNotes = nearByItems.filter(function(i){
       return i.type === 'NOTE';
