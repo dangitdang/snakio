@@ -4,7 +4,7 @@ $(document).ready(function() {
   var ctx = canvas.getContext("2d");
   var width = $("#canvas").width();
   var height = $("#canvas").height();
-
+  var eyes=new Image();
   var cellSize = 20;
   var direction;
   var notes;
@@ -26,24 +26,14 @@ $(document).ready(function() {
     'increaseMaxLength': 'Max Notes Capacity Increased!!'
   }
   var powerToColor = {
-      'changeInstrument' : 'green',
-      'increaseMaxLength' : 'red',
-      'changeNoteDuration': "yellow"
+      'changeInstrument' : '#10A3A3',
+      'increaseMaxLength' : '#AD1457',
+      'changeNoteDuration': "#F9A825"
   }
   var textInfo;
   var pitchToColor = [];
   var colorToNote = [];
-  var pitchToColor = {
-    "53": "#F48FB1",
-    "55": "#C51162",
-    "57": "#7B1FA2",
-    "58": "#3F51B5",
-    "60": "#7986CB",
-    "62": "#006064",
-    "64": "#9ccc65",
-    "65": "#FFEE58"
 
-  };
   var instrumentToChannel = {
     0: 0,
 
@@ -75,7 +65,7 @@ $(document).ready(function() {
     colorToNote[chromeScale[i]] = scaleLetters[i];
   }
 
-
+ eyes.src="/js/eyes.png";
   var pitchList = []; //list of notes in the snake
   var oldPitchListLen = 3; //number of notes from cycle before
 
@@ -251,28 +241,6 @@ $(document).ready(function() {
       setTimeout(playNotes, 125);
     }
 
-    //Moving the snake
-    $(document).keydown(function(e) {
-        var letter = e.which;
-        var direction;
-        if (letter == "37") { //left
-            direction = [-1,0];
-        } else if (letter == "39") { //right
-            direction = [1,0];
-        } else if (letter == "38") { //up
-            direction = [0,-1];
-        } else if (letter == "40") { //down
-            direction = [0,1];
-        };
-        if (direction){
-          socket.emit('playerInput',{
-            cmd : 'setDirection',
-            arg : direction
-          });
-        }
-    });
-
-
 
   //Moving the snake
   $(document).keydown(function(e) {
@@ -354,7 +322,7 @@ $(document).ready(function() {
     //semicircular head
   function color_head(x, y, color) {
     ctx.fillStyle = color;
-
+    
     ctx.beginPath();
     if (player.dir[0]==0){ //up or down
         if(player.dir[1]==-1){ //up
@@ -383,6 +351,7 @@ $(document).ready(function() {
 
     ctx.closePath();
     ctx.fill();
+    ctx.drawImage(eyes, x * cellSize, y * cellSize,15, 15);
 
 
   }
