@@ -20,28 +20,10 @@ $(document).ready(function() {
     var player;
     var last;
     var scoreList;
-
-    var colorToNote = {
-        53 : "#F48FB1",
-        55 : "#C51162",
-        57 : "#7B1FA2",
-        58 : "#3F51B5",
-        60 : "#7986CB",
-        62 : "#006064",
-        64 : "#9ccc65",
-        65 : "#FFEE58"
-        }
-    var pitchToColor = {
-        "53": "#F48FB1",
-        "55": "#C51162",
-        "57": "#7B1FA2",
-        "58": "#3F51B5",
-        "60": "#7986CB",
-        "62": "#006064",
-        "64": "#9ccc65",
-        "65": "#FFEE58"
-
-    };
+    var newc=[];
+    var pitchToColor=[];
+    var colorToNote=[];
+    
     var instrumentToChannel={
         0:0,
         118:1,
@@ -53,18 +35,19 @@ $(document).ready(function() {
         36:7, //slap bass 1
         
     }
-    var colorToNote = {
-        "#F48FB1": "F",
-        "#C51162": "G",
-        "#7B1FA2": "A",
-        "#3F51B5": "Bb",
-        "#7986CB": "C",
-        "#006064": "D",
-        "#9ccc65": "E",
-        "#FFEE58": "F"
-
-    };
+    
+    var scaleLetters=["F", "G", "A", "Bb", "C", "D", "E", "F"]
     var scale = [53, 55, 57, 58, 60, 62, 64, 65]; //f major scale
+                  
+    var chromeScale=chroma.scale(['red', 'blue']).padding([0.2, 0]).colors(8);
+    for (var i=0; i<scale.length; i++){
+        pitchToColor[scale[i].toString()]=chromeScale[i];
+    }
+
+    for (var i=0; i<chromeScale.length; i++){
+        colorToNote[chromeScale[i]]=scaleLetters[i];
+    }
+
 
     var pitchList = []; //list of notes in the snake
     var oldPitchListLen = 3; //number of notes from cycle before
