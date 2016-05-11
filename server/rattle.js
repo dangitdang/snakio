@@ -94,7 +94,7 @@ var sendUpdates = function () {
 
 
   });
-//var end = console.timeEnd('update')
+var end = console.timeEnd('update')
 }
 
 module.exports = {
