@@ -109,7 +109,6 @@ var sendUpdates = function () {
     if (players.checkCollisions(player, nearPlayers)){
       players.removePlayer(player);
       var newPlayer = players.newPlayer(id);
-      console.log(newPlayer);
       sockets[id].emit('dead', newPlayer );
 
     } else {
@@ -119,6 +118,9 @@ var sendUpdates = function () {
           players.appendNote(player, thingAte.pitch);
         } else {
           powerups[thingAte.effect](player);
+          sockets[id].emit('message', {
+            msg: thingAte.effect
+          })
         }
       }
       sockets[id].emit('update',{

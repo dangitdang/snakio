@@ -21,10 +21,15 @@ $(document).ready(function() {
   var last;
   var scoreList=[];
   var newc = [];
+  var effectToMsg = {
+    'changeInstrument' : 'Instrument Changed!',
+    'increaseMaxLength': 'Max Notes Capacity Increased!!'
+  }
   var powerToColor = {
       'changeInstrument' : 'green',
       'increaseMaxLength' : 'red'
   }
+  var textInfo;
   var pitchToColor = [];
   var colorToNote = [];
   var pitchToColor = {
@@ -40,14 +45,21 @@ $(document).ready(function() {
   };
   var instrumentToChannel = {
     0: 0,
-    
+
     57: 2,
     8: 3,
     109: 4, //bagpipe
     105: 5, //banjo
-    
-    36: 7, //slap bass 1
 
+    36: 7, //slap bass 1
+  }
+  var instrumentToName = {
+    0 : "Piano",
+    57 : "Trumpet",
+    8  : "Celesta",
+    109 : "Bag pipe",
+    105 : "Banjo",
+    36  : "Slap Bass"
   }
 
   var scaleLetters = ["F", "G", "A", "Bb", "C", "D", "E", "F"]
@@ -78,11 +90,23 @@ $(document).ready(function() {
     died = false;
     socket.emit('readyToStart', player);
     $('#game-start').fadeOut();
-      setInterval(updateScoreTable, 500);
+    $('.player-info').css('visibility','visible');
+    $('.score').css('visibility', 'visible')
+    setInterval(updateScoreTable, 500);
   }
   socket.on('playerInfo', function(playerinfo) {
     player = playerinfo;
 
+  });
+
+  socket.on('message', function(msg){
+    var message = effectToMsg[msg.msg];
+    $('h3').text(message).fadeIn(400);
+    setTimeout(function(){
+      $('h3').fadeOut(400, function(){
+        $('h3').text('');
+      });
+    }, 3000);
   });
 
   socket.on('gameConfig', function(size) {
@@ -115,18 +139,6 @@ $(document).ready(function() {
   });
 
 
-  function updateScoreTable() {
-    var rank = 1;
-    $('#scoreTable > tbody').empty();
-    $('#scoreTable').append('<tr><th>Rank</th><th>Name</th> <th>Points</th></tr>');
-
-    scoreList.forEach(function(player) {
-      $('#scoreTable').find('tbody').append('<tr><td>' + rank + '</td><td>' + player.id + '</td><td>' + player.score + '</td></tr>');
-      rank += 1;
-    });
-
-  }
-
   function animLoop() {
     animLoopHandle = window.requestAnimationFrame(animLoop);
     gameLoop();
@@ -136,6 +148,8 @@ $(document).ready(function() {
     soundfontUrl: "./soundfont2/",
     instruments: ["acoustic_grand_piano", "trumpet",  "celesta", "bagpipe", "banjo",  "slap_bass_1"],
     onprogress: function(state, progress) {
+      console.log(progress*100);
+      $('#progress-bar').progress({percent : progress*100})
       //console.log(state, progress);
     },
     onsuccess: function() {
@@ -148,8 +162,12 @@ $(document).ready(function() {
       MIDI.programChange(5, 105); //banjo
       //MIDI.programChange(6, 75); //panflute
       MIDI.programChange(7, 36); //slap bass
+      $('#progress-bar').fadeOut(400, function(){
+        $('.after-load').fadeIn()
+      });
     }
   });
+
 
   function calculateVelocity(player, other) {
     var p1 = player.head;
@@ -157,6 +175,7 @@ $(document).ready(function() {
     var dist = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p2.y, 2));
     return 80 - dist * (.7);
   }
+
     socket.on('dead', function(msg){
       died = true;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -164,12 +183,16 @@ $(document).ready(function() {
 
 
     function updateScoreTable(){
+      $('#instrument').text(instrumentToName[player.instrument]);
+      $('#note-length').text(player.maxLength);
+      $('#total-length').text(player.body.length);
         var rank=1;
-        $('#scoreTable > tbody').empty();
-        $('#scoreTable').append('<tr><th>Rank</th><th>Name</th> <th>Points</th></tr>');
+        $('#scoreTable tbody').html('');
 
     scoreList.forEach(function(player){
-        $('#scoreTable').find('tbody').append('<tr><td>' +rank+ '</td><td>'+ player.id+'</td><td>' +player.score+ '</td></tr>');
+        $('#scoreTable').find('tbody').append("<tr><td><h2 class='ui header'>" +rank+
+         "</h2></td><td><h2 class='ui header'>"+ player.id+"</h2></td><td><h2 class='ui header'>"
+         +player.score+ '</h2></td></tr>');
         rank+=1;
     });
 
@@ -178,26 +201,6 @@ $(document).ready(function() {
       animLoopHandle = window.requestAnimationFrame(animLoop);
       gameLoop();
     }
-    setInterval(updateScoreTable, 500);
-    MIDI.loadPlugin({
-        soundfontUrl: "./soundfont2/",
-        instruments: ["acoustic_grand_piano","trumpet", "celesta", "bagpipe", "banjo","slap_bass_1"],
-        onprogress: function(state, progress) {
-            //console.log(state, progress);
-        },
-        onsuccess: function() {
-            midiLoaded = true;
-            MIDI.programChange(0, 0); // set channel 0 to piano
-            //MIDI.programChange(1, 118); // set channel 1 to synth drum
-            MIDI.programChange(2, 56); //trumpet
-            MIDI.programChange(3, 8); //celesta
-            MIDI.programChange(4, 109); //bagpipe
-            MIDI.programChange(5, 105); //banjo
-            //MIDI.programChange(6, 75); //panflute
-            MIDI.programChange(7, 36); //slap bass
-
-        }
-    });
     function calculateVelocity(player, other){
       var p1 = player.head;
       var p2 = other.head;
@@ -255,6 +258,7 @@ $(document).ready(function() {
           });
         }
     });
+
 
 
   //Moving the snake
@@ -333,40 +337,40 @@ $(document).ready(function() {
     }
 
   }
-    
+
     //semicircular head
     function color_head(x, y, color) {
     ctx.fillStyle = color;
-    
+
     ctx.beginPath();
     if (player.dir[0]==0){ //up or down
         if(player.dir[1]==-1){ //up
             ctx.fillRect(x * cellSize, y * cellSize+cellSize/2.0, cellSize, cellSize/2.0);
             ctx.arc(x * cellSize+cellSize/2.0, y * cellSize+cellSize/2.0, cellSize/2.0, 0, Math.PI, true);
         }
-        
+
         else{ //down
             ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize/2.0);
             ctx.arc(x * cellSize+cellSize/2.0, y * cellSize+cellSize/2.0, cellSize/2.0, 0, Math.PI, false);
         }
     }
-    
-        
+
+
     else { //left or right
         if (player.dir[0]==-1){ //left
             ctx.fillRect(x * cellSize+cellSize/2.0, y * cellSize, cellSize/2.0, cellSize);
         ctx.arc(x * cellSize+cellSize-cellSize/2.0, y * cellSize+cellSize/2.0, cellSize/2.0, 0, Math.PI*2, true);
-            
+
         }
         else{ //right
             ctx.fillRect(x * cellSize, y * cellSize, cellSize/2.0, cellSize);
-          ctx.arc(x * cellSize+cellSize/2.0, y * cellSize+cellSize/2.0, cellSize/2.0, 0, Math.PI*2, true);  
+          ctx.arc(x * cellSize+cellSize/2.0, y * cellSize+cellSize/2.0, cellSize/2.0, 0, Math.PI*2, true);
         }
         }
-    
+
     ctx.closePath();
     ctx.fill();
-    
+
 
   }
 
