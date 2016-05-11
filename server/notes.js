@@ -1,119 +1,103 @@
 var R = require('ramda');
 var utils = require('../utils.js');
 var scale = [53, 55, 57, 58, 60, 62, 64, 65];
-var channels=[0,118, 57,8,109, 105,75, 36];
 
-var NotesManager = function(opts){
+var NotesManager = function(grid,opts){
   var that = this;
-  var notes = [];
-  var powerups=[];
-  var instrumentPowers=[];
+  var grid = grid;
+  var powerups = 0;
 
   that.addNotes = function(amnt){
     while (amnt--) {
-        var position = utils.randomPosition(notes);
-        notes.push({
-          x : position.x,
-          y : position.y,
-          pitch : scale[utils.randomBetween(0,7)]
-        });
+        var position = utils.randomPosition();
+        if (grid[position.y][position.x] === undefined){
+          grid[position.y][position.x] = [{
+            x : position.x,
+            y : position.y,
+            type : 'NOTE',
+            pitch : scale[utils.randomBetween(0,7)]
+          }]
+        } else {
+          amnt++
+        }
     }
   };
-    
-  that.addPowerups = function(amnt){
+
+  that.totalPowerUps = function() {
+    return powerups;
+  }
+
+  that.addPowerups = function(amnt, effect){
     while (amnt--) {
         var position = utils.randomPosition(powerups);
-        powerups.push({
+        var newPower = {
           x : position.x,
           y : position.y,
-          increase : utils.randomBetween(1,3)*2
-        
-        });
-    }
-  };
-
-  that.addInstruments = function(amnt){
-    while (amnt--) {
-        var position = utils.randomPosition(instrumentPowers);
-        instrumentPowers.push({
-          x : position.x,
-          y : position.y,
-          instrument : channels[utils.randomBetween(0,7)]
-        
-        });
-    }
-  };
-
-    
-  that.decreaseNotes = function(amnt){
-    while (amnt--){
-      notes.pop();
-    }
-  };
-    
-  that.decreasePowerups = function(amnt){
-    while (amnt--){
-      powerups.pop();
-    }
-  };
-
-  var deleteNotes = function(notesToDelete){
-    notesToDelete.forEach(function(note){
-      for (var i = 0; i < notes.length; i++) {
-        if (notes[i].x === note.x && notes[i].y === note.y) {
-          notes.splice(i,1);
-          break;
+          type : 'POWERUP',
+          effect : effect
         }
-      }
-    });
+        if (grid[position.y][position.x] === undefined){
+          grid[position.y][position.x] = [newPower]
+          powerups++;
+        } else {
+          amnt++
+        }
+    }
+  };
+
+  var deleteNotes = function(noteToDelete){
+      var prevGrid = grid[noteToDelete.y][noteToDelete.x];
+      var newGridValue = prevGrid.filter(function(i){
+        return i.type !== 'NOTE'
+      });
+      grid[noteToDelete.y][noteToDelete.x] = newGridValue;
   }
-  
-  //will delete from instruments or powerups
-  var deletePowerups = function(powerupsToDelete, array){
-    powerupsToDelete.forEach(function(power){
-      for (var i = 0; i < powerups.length; i++) {
-        if (array[i].x === power.x && array[i].y === power.y) {
-          array.splice(i,1);
-          break;
-        }
-      }
-    });
+
+  var deletePowerups = function(powerupToDelete){
+      var prevGrid = grid[powerupToDelete.y][powerupToDelete.x];
+      var newGridValue = prevGrid.filter(function(i){
+        return i.type !== 'POWERUP'
+      });
+      grid[powerupToDelete.y][powerupToDelete.x] = newGridValue;
   }
 
   that.nearByNotes = function(player){
-    var nearBy = R.map(function(note){
-      if (utils.checkDistance(player.head, note, 40, 40)){
-        return note;
+    var nearBy2 = []
+    var minX = Math.max(player.head.x - 20,0);
+    var maxX = Math.min(player.head.x + 20, 199);
+    var minY = Math.max(player.head.y - 20, 0);
+    var maxY = Math.min(player.head.y + 20, 199);
+    for (var x = minX; x < maxX; x++) {
+      for (var y = minY; y < maxY; y++) {
+        if (grid[y][x] !== undefined){
+          grid[y][x].forEach(function(note){
+            if (note.type === 'NOTE' || note.type === 'POWERUP'){
+              nearBy2.push(note);
+            }
+          })
+        }
       }
-      return;
-    }, notes);
-    return R.filter(function(note){ return note;}, nearBy);
+    }
+    return nearBy2;
   };
-  
-  that.nearByPowerups=function(player){
-        return powerups;
-    }
-    
-  that.nearByInstruments=function(player){
-        return instrumentPowers;
-    }
 
-  that.ateNote = function(player, nearBy){
-    for (var i = 0; i < nearBy.length; i++) {
-      if (player.head.x === nearBy[i].x && player.head.y === nearBy[i].y){
-        deleteNotes([nearBy[i]]);
-        that.addNotes(1);
-        return nearBy[i];
-      }
-    }
-    return false;
-  };
-  
-  that.atePowerup = function(player, nearBy){
-    for (var i = 0; i < nearBy.length; i++) {
-      if (player.head.x === nearBy[i].x && player.head.y === nearBy[i].y){
-        deletePowerups([nearBy[i]],nearBy);
-        return nearBy[i];
+  that.eatNote = function(player){
+    var gridValue = grid[player.head.y][player.head.x];
+    var notes = gridValue.filter(function(i){
+      return i.type === 'NOTE' || i.type === 'POWERUP'
+    });
+    for (var i = 0; i < gridValue.length; i++) {
+      var note = gridValue[i];
+      if (note.type === 'PLAYER') {
+        continue;
+      } else {
+        if (note.type ==='NOTE') {
+          deleteNotes(note);
+          that.addNotes(1);
+        } else {
+          deletePowerups(note);
+        }
+        return note;
       }
     }
     return false;

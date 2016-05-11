@@ -3,12 +3,21 @@ var randomBetween = function(from, to){
   return Math.floor(Math.random() * (to-from)) + from;
 };
 module.exports.randomBetween = randomBetween;
-module.exports.randomPosition = function(notes) {
+module.exports.randomPosition = function() {
   return {
     x : randomBetween(0, config.gameWidth),
     y : randomBetween(0, config.gameHeight)
   };
 };
+
+module.exports.makeGrid = function(width, height){
+  var grid = [];
+  for (var i=0; i < height; i ++){
+    grid.push([]);
+    grid[i].push(new Array(width));
+  }
+  return grid;
+}
 
 module.exports.getDistance = function(p1, p2){
   return Math.pow(p2.x - p1.x,2) + Math.pow(p2.y-p2.y,2);
