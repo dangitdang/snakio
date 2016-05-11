@@ -108,8 +108,9 @@ $(document).ready(function() {
     }
   });
 
-  socket.on('dead', function(msg) {
+  socket.on('dead', function(player) {
     died = true;
+    player = player;
   });
 
 
@@ -314,7 +315,9 @@ $(document).ready(function() {
       //TODO: draw dead screen
         ctx.clearRect(0, 0, canvas.width, canvas.height);
           document.getElementById("canvas").style.display="none";
-          document.getElementById("gameOver").style.display="inline";
+         document.getElementById("game-start").style.display="block";
+          document.getElementById("gameOver").style.display="block";
+        document.getElementById("score").innerHTML="Your Score: "+ player.score.toString();
     } else if (!disconnected) {
       if (gameStarted) {
         ctx.fillStyle = '#f2fbff';

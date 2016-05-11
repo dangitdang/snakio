@@ -78,6 +78,7 @@ var PlayersManager = function(grid, opts) {
         var prevPos = player.body.pop();
         var prevGrid = grid[prevPos.y][prevPos.x];
         var indexToRemove;
+        console.log(prevPos);
         if (prevGrid.length < 2){
           grid[prevPos.y][prevPos.x] = undefined;
         } else {
@@ -99,9 +100,10 @@ var PlayersManager = function(grid, opts) {
           type: 'PLAYER',
           playerID : player.id
         }
-        if (player.head.x > 200 || player.head.x < 0 || player.head.y > 200 || player.head.y < 0){
+        if (player.head.x > 199 || player.head.x < 0 || player.head.y > 199 || player.head.y < 0){
           return;
         }
+        console.log(player.head.x, player.head.y);
         if (grid[player.head.y][player.head.x] !== undefined) {
             grid[player.head.y][player.head.x].push(newPos)
         } else {

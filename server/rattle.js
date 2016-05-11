@@ -104,10 +104,10 @@ var sendUpdates = function () {
       return i.type === 'POWERUP'
     });
     if (players.checkCollisions(player, nearPlayers)){
-      sockets[id].emit('dead', {
-        message : 'player dead'
-      });
       players.deadPlayer(player);
+      var newPlayer = players.newPlayer(id);
+      sockets[id].emit('dead', newPlayer );
+      
     } else {
       var thingAte = notes.eatNote(player);
       if (thingAte) {
