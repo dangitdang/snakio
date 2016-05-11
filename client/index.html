@@ -9,7 +9,7 @@ Authors: Danielle Penny, Dang Pham
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script type='text/javascript' src='http://www.midijs.net/lib/midi.js'></script>
-    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/components/progress.min.js"></script>
     <script src='/js/snake.js'></script>
     <script src='/js/snakeAudio.js'></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/1.1.1/chroma.min.js"></script>
@@ -39,63 +39,98 @@ Authors: Danielle Penny, Dang Pham
 
     <div class='container'>
         <div class='player-info'>
+            <div class='ui statistics'>
+                <div class='ui red statistic'>
+                    <div class='value' id='note-length'>
+                    </div>
+                    <div class='label'>
+                        Capacity
+                    </div>
+                </div>
+                <div class='ui blue statistic'>
+                    <div class='value' id='total-length'>
+                    </div>
+                    <div class='label'>
+                        Total Length
+                    </div>
+                </div>
+            </div>
+            <div class='ui teal statistic'>
+                <div class='value' id='instrument'>
+                </div>
+                <div class='label'>
+                    Instrument
+                </div>
+            </div>
         </div>
         <div class='game-screen'>
-          <canvas id="canvas" width="800" height="800"> </canvas>
-          <div id='game-start'>
-            <div class="ui yellow message" id="gameOver">Game Over
-                <h2>Your Score:</h2>
-                <p>40</p>
+            <canvas id="canvas" width="800" height="800"> </canvas>
+            <h3 class='ui header orange'>
+          </h3>
+            <div id='game-start'>
+                <div class="ui yellow message" id="gameOver">Game Over
+                    <h2>Your Score:</h2>
+                    <p>40</p>
 
-            </div>
-            <div class='ui action input'>
-                <input id='player-name' type='text' placeholder='Name'>
-                <button class='ui teal button'> Play </div>
-            <div class="ui simple dropdown">
-                <input type="hidden" name="instrument">
-            </div>
-            <div class="ui form">
-                <div class="grouped fields" style="padding:20px">
-                    <label>Select your instrument</label>
-                    <div class="field">
-                        <div class="ui radio checkbox">
-                            <input type="radio" name="inst" value="0" checked="checked">
-                            <label>Piano</label>
-                        </div>
+                </div>
+                <h1 class='ui teal center aligned header'> Snakio </h1>
+                <div class="ui teal progress" id="progress-bar">
+                    <div class="bar">
                     </div>
-                    <div class="field">
-                        <div class="ui radio checkbox">
-                            <input type="radio" name="inst" value="57">
-                            <label>Trumpet</label>
-                        </div>
+                    <div class="label">Getting rattlers...</div>
+                </div>
+                <div class='after-load'>
+                    <div class='ui action input'>
+                        <input id='player-name' type='text' placeholder='Name'>
+                        <button class='ui teal button'> Play </button>
                     </div>
-                    <div class="field">
-                        <div class="ui radio checkbox">
-                            <input type="radio" name="inst" value="118">
-                            <label>Drums</label>
-                        </div>
+                    <div class="ui simple dropdown">
+                        <input type="hidden" name="instrument">
                     </div>
-                    <div class="field">
-                        <div class="ui radio checkbox">
-                            <input type="radio" name="inst" value="8">
-                            <label>Celesta</label>
+                    <div class="ui form">
+                        <div class="grouped fields" style="padding:20px">
+                            <label>Select your instrument</label>
+                            <div class="field">
+                                <div class="ui radio checkbox">
+                                    <input type="radio" name="inst" value="0" checked="checked">
+                                    <label>Piano</label>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="ui radio checkbox">
+                                    <input type="radio" name="inst" value="57">
+                                    <label>Trumpet</label>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="ui radio checkbox">
+                                    <input type="radio" name="inst" value="118">
+                                    <label>Drums</label>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="ui radio checkbox">
+                                    <input type="radio" name="inst" value="8">
+                                    <label>Celesta</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-          </div>
         </div>
         <div class='score'>
-          <table class='ui very basic table' id="scoreTable">
-              <thead>
-                <tr>
-                    <th>Rank</th>
-                    <th>Name</th>
-                    <th>Points</th>
-                </tr>
-              <thead>
-              <tbody></tbody>
-          </table>
+            <h2 class='ui teal center aligned header' style='font-size: 3rem'> Top Scores </h2>
+            <table class='ui very basic table' id="scoreTable">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    <thead>
+                        <tbody></tbody>
+            </table>
         </div>
     </div>
 </body>

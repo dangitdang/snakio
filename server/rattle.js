@@ -115,6 +115,9 @@ var sendUpdates = function () {
           players.appendNote(player, thingAte.pitch);
         } else {
           powerups[thingAte.effect](player);
+          sockets[id].emit('message', {
+            msg: thingAte.effect
+          })
         }
       }
       sockets[id].emit('update',{

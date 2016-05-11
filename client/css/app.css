@@ -16,8 +16,21 @@ canvas {
   position: absolute;
 }
 .player-info{
+  visibility: hidden;
+  margin: auto;
   width:20%;
-  height: 100%;
+  height: 50%;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.after-load {
+  display:none;
+}
+h1.ui.header {
+  font-size: 6rem;
 }
 .game-screen {
   width: 800px;
@@ -27,8 +40,14 @@ canvas {
   width: 20%;
   height: 80%;
   margin: 0 auto;
+  visibility: hidden;
 }
-
+h3 {
+  position:absolute;
+  bottom: 5%;
+  left: 40%;
+  z-index: 4;
+}
 #game-start {
   position: absolute;
   top: 25%;
