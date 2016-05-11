@@ -4,7 +4,7 @@ $(document).ready(function() {
   var ctx = canvas.getContext("2d");
   var width = $("#canvas").width();
   var height = $("#canvas").height();
-
+  var socket;
   var cellSize = 20;
   var direction;
   var notes;
@@ -78,7 +78,53 @@ $(document).ready(function() {
   var pitchList = []; //list of notes in the snake
   var oldPitchListLen = 3; //number of notes from cycle before
 
-  var socket = io('/rattle');
+  function setUpSocket(){
+    socket = io('/rattle');
+    socket.on('playerInfo', function(playerinfo) {
+      player = playerinfo;
+    });
+    socket.on('message', function(msg){
+      var message = effectToMsg[msg.msg];
+      $('h3').text(message).fadeIn(400);
+      setTimeout(function(){
+        $('h3').fadeOut(400, function(){
+          $('h3').text('');
+        });
+      }, 3000);
+    });
+    socket.on('gameConfig', function(size) {
+      playNotes();
+      animLoop();
+    })
+
+      socket.on('update', function(updates) {
+        player = updates.player;
+        notes = updates.nearByNotes;
+        powerups = updates.nearByPowerups;
+        nearByPlayers = updates.nearByPlayers;
+        scoreList = updates.scoreList.reverse();
+        instrumentPowers = updates.nearByInstruments;
+        console.log('updates');
+        if (last !== undefined) {
+          var now = new Date().getTime();
+
+          if (now - last > 100) {
+            //console.log(now - last)
+          }
+          last = now;
+        } else {
+          last = new Date().getTime();
+        }
+      });
+      socket.on('dead', function(newPlayer) {
+        score = player.score;
+        died = true;
+        player = newPlayer;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      });
+
+  }
+
   $('button').click(function() {
     startGame();
   });
@@ -94,51 +140,6 @@ $(document).ready(function() {
     $('.score').css('visibility', 'visible')
     setInterval(updateScoreTable, 500);
   }
-  socket.on('playerInfo', function(playerinfo) {
-    player = playerinfo;
-
-  });
-
-  socket.on('message', function(msg){
-    var message = effectToMsg[msg.msg];
-    $('h3').text(message).fadeIn(400);
-    setTimeout(function(){
-      $('h3').fadeOut(400, function(){
-        $('h3').text('');
-      });
-    }, 3000);
-  });
-
-  socket.on('gameConfig', function(size) {
-    playNotes();
-    animLoop();
-  })
-  socket.on('update', function(updates) {
-    player = updates.player;
-    notes = updates.nearByNotes;
-    powerups = updates.nearByPowerups;
-    nearByPlayers = updates.nearByPlayers;
-    scoreList = updates.scoreList.reverse();
-    instrumentPowers = updates.nearByInstruments;
-    console.log('updates');
-    if (last !== undefined) {
-      var now = new Date().getTime();
-
-      if (now - last > 100) {
-        //console.log(now - last)
-      }
-      last = now;
-    } else {
-      last = new Date().getTime();
-    }
-  });
-
-  socket.on('dead', function(newPlayer) {
-    died = true;
-    player = newPlayer;
-  });
-
-
   function animLoop() {
     animLoopHandle = window.requestAnimationFrame(animLoop);
     gameLoop();
@@ -165,21 +166,11 @@ $(document).ready(function() {
       $('#progress-bar').fadeOut(400, function(){
         $('.after-load').fadeIn()
       });
+      setUpSocket();
+
     }
   });
 
-
-  function calculateVelocity(player, other) {
-    var p1 = player.head;
-    var p2 = other.head;
-    var dist = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p2.y, 2));
-    return 80 - dist * (.7);
-  }
-
-    socket.on('dead', function(msg){
-      died = true;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    });
 
 
     function updateScoreTable(){
@@ -195,12 +186,7 @@ $(document).ready(function() {
          +player.score+ '</h2></td></tr>');
         rank+=1;
     });
-
-    }
-    function animLoop() {
-      animLoopHandle = window.requestAnimationFrame(animLoop);
-      gameLoop();
-    }
+  }
     function calculateVelocity(player, other){
       var p1 = player.head;
       var p2 = other.head;
@@ -238,29 +224,6 @@ $(document).ready(function() {
       setTimeout(playNotes, 250);
     }
 
-    //Moving the snake
-    $(document).keydown(function(e) {
-        var letter = e.which;
-        var direction;
-        if (letter == "37") { //left
-            direction = [-1,0];
-        } else if (letter == "39") { //right
-            direction = [1,0];
-        } else if (letter == "38") { //up
-            direction = [0,-1];
-        } else if (letter == "40") { //down
-            direction = [0,1];
-        };
-        if (direction){
-          socket.emit('playerInput',{
-            cmd : 'setDirection',
-            arg : direction
-          });
-        }
-    });
-
-
-
   //Moving the snake
   $(document).keydown(function(e) {
     var letter = e.which;
@@ -290,7 +253,7 @@ $(document).ready(function() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         document.getElementById("game-start").style.display="block";
         document.getElementById("gameOver").style.display="block";
-        document.getElementById("score").innerHTML="Your Score: "+ player.score.toString();
+        document.getElementById("score").innerHTML="Your Score: "+ score;
     } else if (!disconnected) {
       if (gameStarted) {
         ctx.fillStyle = '#f2fbff';
