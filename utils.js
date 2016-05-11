@@ -3,7 +3,7 @@ var randomBetween = function(from, to){
   return Math.floor(Math.random() * (to-from)) + from;
 };
 module.exports.randomBetween = randomBetween;
-module.exports.randomPosition = function() {
+module.exports.randomPosition = function(notes) {
   return {
     x : randomBetween(0, config.gameWidth),
     y : randomBetween(0, config.gameHeight)

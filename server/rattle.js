@@ -11,6 +11,8 @@ var SCORES = [];
 notes.addNotes(500);
 notes.addPowerups(100);
 
+notes.addNotes(300);
+notes.addPowerups(100);
 var listen = function(app){
     io = socketio.listen(app);
 
@@ -95,9 +97,9 @@ var sendUpdates = function () {
       if (noteAte) {
         players.appendNote(player, noteAte.pitch);
       }
-        
+
       if (powerupAte) {
-          
+
         player.maxLength+=powerupAte.increase;
           console.log(player.maxLength, "max len");
       }

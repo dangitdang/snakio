@@ -21,7 +21,7 @@ var PlayersManager = function(opts) {
             notes: [],
             lastPing: new Date().getTime(),
             hue: randomColor(),
-            instrument:"piano",
+            instrument: "piano",
             score:0,
             maxLength:8
         };
@@ -101,6 +101,10 @@ var PlayersManager = function(opts) {
         return R.filter(function(other) { return other; }, nearBy);
     };
     that.deadPlayer = function(player){
+      player.head = {
+        x: -100,
+        y: -100,
+      }
       player.body = [];
       player.notes = [];
       player.dir = [0,0];
@@ -151,6 +155,7 @@ var PlayersManager = function(opts) {
         return scores;
         
     }
+
     return that;
 };
 
