@@ -103,12 +103,12 @@ var sendUpdates = function () {
         player.maxLength+=powerupAte.increase;
           console.log(player.maxLength, "max len");
       }
-    
+
     if (instrumentAte) {
 
         player.instrument=instrumentAte.instrument;
       }
-        
+
       sockets[id].emit('update',{
         player : player,
         nearByPlayers : nearPlayers,
@@ -121,7 +121,7 @@ var sendUpdates = function () {
 
 
   });
-//  var end = console.timeEnd('update')
+var end = console.timeEnd('update')
 }
 
 module.exports = {
