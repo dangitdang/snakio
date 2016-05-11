@@ -83,7 +83,6 @@ var updateScores=function(){
 var sendUpdates = function () {
   var start = console.time('update')
   if (Math.random() < .03 && notes.totalPowerUps() < 70){
-    console.log('New Power up spawned');
     var power = utils.randomBetween(0,3);
     notes.addPowerups(1,POWERS[power]);
   }
@@ -99,6 +98,7 @@ var sendUpdates = function () {
       return;
     }
     var nearPlayers = players.nearByPlayers(player);
+
     var nearByItems = notes.nearByNotes(player);
     var nearNotes = nearByItems.filter(function(i){
       return i.type === 'NOTE';
