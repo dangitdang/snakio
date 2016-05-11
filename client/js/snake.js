@@ -87,6 +87,7 @@ $(document).ready(function() {
     player.instrument = document.querySelector('input[name = "inst"]:checked').value;
 
     gameStarted = true;
+    died = false;
     socket.emit('readyToStart', player);
     $('#game-start').fadeOut();
     $('.player-info').css('visibility','visible');
@@ -119,7 +120,7 @@ $(document).ready(function() {
     nearByPlayers = updates.nearByPlayers;
     scoreList = updates.scoreList.reverse();
     instrumentPowers = updates.nearByInstruments;
-
+    console.log('updates');
     if (last !== undefined) {
       var now = new Date().getTime();
 
@@ -132,8 +133,9 @@ $(document).ready(function() {
     }
   });
 
-  socket.on('dead', function(msg) {
+  socket.on('dead', function(newPlayer) {
     died = true;
+    player = newPlayer;
   });
 
 
@@ -204,11 +206,12 @@ $(document).ready(function() {
       var p1 = player.head;
       var p2 = other.head;
       var dist = Math.sqrt(Math.pow(p2.x - p1.x,2) + Math.pow(p2.y-p2.y,2));
-      return 80 - dist*(.7);
-
-
+      return 80 - dist*(1.2);
     }
     function playNotes(){
+      if (died){
+        return;
+      }
       var delay = 0;
       var velocity = 80;
       MIDI.noteOn(instrumentToChannel[player.instrument], player.notes[curNoteIndex], velocity, delay);
@@ -255,7 +258,8 @@ $(document).ready(function() {
             arg : direction
           });
         }
-    })
+    });
+
 
 
   //Moving the snake
@@ -285,8 +289,9 @@ $(document).ready(function() {
     if (died) {
       //TODO: draw dead screen
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-          document.getElementById("canvas").style.display="none";
-          document.getElementById("gameOver").style.display="inline";
+        document.getElementById("game-start").style.display="block";
+        document.getElementById("gameOver").style.display="block";
+        document.getElementById("score").innerHTML="Your Score: "+ player.score.toString();
     } else if (!disconnected) {
       if (gameStarted) {
         ctx.fillStyle = '#f2fbff';
