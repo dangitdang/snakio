@@ -83,11 +83,14 @@ var NotesManager = function(grid,opts){
 
   that.eatNote = function(player){
     var gridValue = grid[player.head.y][player.head.x];
+    if (gridValue === undefined){
+        return false;
+    }
     var notes = gridValue.filter(function(i){
       return i.type === 'NOTE' || i.type === 'POWERUP'
     });
-    for (var i = 0; i < gridValue.length; i++) {
-      var note = gridValue[i];
+    for (var i = 0; i < notes.length; i++) {
+      var note = notes[i];
       if (note.type === 'PLAYER') {
         continue;
       } else {

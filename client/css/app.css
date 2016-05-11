@@ -20,9 +20,5 @@ canvas {
 
 #gameOver {
   display: none;
-  position: absolute;
-  top : 400px;
-  left : 200px;
-  margin: 0 auto;
-  z-index: 4;
+
 }
