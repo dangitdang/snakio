@@ -95,6 +95,7 @@ $(document).ready(function() {
 
     socket.on('dead', function(msg){
       died = true;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     });
      
     
@@ -192,12 +193,15 @@ $(document).ready(function() {
 
     })
 
-
+    //$('.ui.basic.modal').modal('show');
 
 
     function gameLoop(){
       if (died) {
         //TODO: draw dead screen
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          document.getElementById("canvas").style.display="none";
+          document.getElementById("gameOver").style.display="inline";
       }
       else if (!disconnected) {
         if (gameStarted) {

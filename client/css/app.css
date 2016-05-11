@@ -17,3 +17,12 @@ canvas {
   margin: 0 auto;
   z-index: 2;
 }
+
+#gameOver {
+  display: none;
+  position: absolute;
+  top : 400px;
+  left : 200px;
+  margin: 0 auto;
+  z-index: 4;
+}
