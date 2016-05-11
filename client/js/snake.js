@@ -202,9 +202,7 @@ $(document).ready(function() {
       var p1 = player.head;
       var p2 = other.head;
       var dist = Math.sqrt(Math.pow(p2.x - p1.x,2) + Math.pow(p2.y-p2.y,2));
-      return 80 - dist*(.7);
-
-
+      return 80 - dist*(1.2);
     }
     function playNotes(){
       if (died){

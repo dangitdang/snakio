@@ -77,6 +77,9 @@ var PlayersManager = function(grid, opts) {
     }
     var prevPos = player.body.pop();
     var prevGrid = grid[prevPos.y][prevPos.x];
+    if (prevGrid === undefined){
+      return;
+    }
     var indexToRemove;
     if (prevGrid.length < 2) {
       grid[prevPos.y][prevPos.x] = undefined;
