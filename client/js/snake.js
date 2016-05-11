@@ -9,6 +9,7 @@ $(document).ready(function() {
     var direction;
     var notes;
     var powerups;
+    var instrumentPowers;
     var score = 0;
     var died = false;
     var disconnected = false;
@@ -45,7 +46,12 @@ $(document).ready(function() {
         0:0,
         118:1,
         57:2,
-        8:3
+        8:3,
+        109:4, //bagpipe
+        105:5, //banjo
+        75:6, //panflute
+        36:7, //slap bass 1
+        
     }
     var colorToNote = {
         "#F48FB1": "F",
@@ -74,21 +80,7 @@ $(document).ready(function() {
     gameStarted = true;
       socket.emit('readyToStart',player);
       $('#game-start').fadeOut();
-      //var counter = 750;
-      // var audioLoop = function(){
-      //   clearInterval(interval);
-      //   var numAddedNotes = player.notes.length - oldPitchListLen;
-      //   counter += (250 * numAddedNotes);
-      //   oldPitchListLen = player.notes.length;
-      //   // playSnake();
-      //   if (died){
-      //     return;
-      //   }
-      //   interval = setInterval(audioLoop, counter);
-      // }
-      // var interval = setInterval(audioLoop, counter);
-
-    }
+}
     socket.on('playerInfo', function(playerinfo){
       player = playerinfo;
 
@@ -104,7 +96,7 @@ $(document).ready(function() {
       powerups=updates.nearByPowerups;
       nearByPlayers = updates.nearByPlayers;
       scoreList = updates.scoreList;
-      //console.log(scoreList, "scoreLIst");
+      instrumentPowers=updates.nearByInstruments;
         
       if (last !== undefined) {
         var now = new Date().getTime();
@@ -142,7 +134,7 @@ $(document).ready(function() {
 
     MIDI.loadPlugin({
         soundfontUrl: "./soundfont2/",
-        instruments: ["acoustic_grand_piano","trumpet","synth_drum", "celesta"],
+        instruments: ["acoustic_grand_piano","trumpet","synth_drum", "celesta", "bagpipe", "banjo","pan_flute","slap_bass_1"],
         onprogress: function(state, progress) {
             //console.log(state, progress);
         },
@@ -152,7 +144,10 @@ $(document).ready(function() {
             MIDI.programChange(1, 118); // set channel 1 to synth drum
             MIDI.programChange(2, 56); //trumpet
             MIDI.programChange(3, 8); //celesta
-
+            MIDI.programChange(4, 109); //bagpipe
+            MIDI.programChange(5, 105); //banjo
+            MIDI.programChange(6, 75); //panflute
+            MIDI.programChange(7, 36); //slap bass
 
         }
     });
@@ -230,7 +225,8 @@ $(document).ready(function() {
           paintBorder();
           paintSnake(player);
           paintNotes();
-          paintPowerups();
+          paintPowerups(powerups,"red");
+          paintPowerups(instrumentPowers,"green");
           updateScoreTable(scoreList)
 
         }
@@ -240,6 +236,7 @@ $(document).ready(function() {
     function paintNotes(){
       var dx = (Math.floor(width/cellSize/2 - player.head.x));
       var dy = (Math.floor(height/cellSize/2 - player.head.y));
+      //console.log(dx, dy, "paintnote dx dy");
       if (!notes) return;
       notes.forEach(function(note){
         color_note(dx+note.x, dy+note.y, pitchToColor[note.pitch]);
@@ -247,13 +244,15 @@ $(document).ready(function() {
 
     }
     
-    function paintPowerups(){
+    function paintPowerups(array, color){
         //console.log("powerups paint", powerups);
       var dx = (Math.floor(width/cellSize/2 - player.head.x));
       var dy = (Math.floor(height/cellSize/2 - player.head.y));
-      if (!powerups) return;
-      powerups.forEach(function(power){
-        color_note(dx+power.x, dy+power.y, "red");
+        //console.log(dx, dy, "powerup dx dy");
+      if (!array) return;
+      
+      array.forEach(function(power){
+        color_powerup(dx+power.x, dy+power.y, color);
       });
         
     }
@@ -280,6 +279,18 @@ $(document).ready(function() {
         }
 
     }
+    
+    function color_powerup(x, y, color) {
+    ctx.fillStyle = color;
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(x * cellSize, y * cellSize);
+    ctx.lineTo(x * cellSize+cellSize, y * cellSize);
+    ctx.lineTo(x * cellSize+cellSize/2, y * cellSize+cellSize);
+    ctx.fill();
+
+    }
+    
     function paintSnake(snake){
       var diff = paintHead(snake.head);
       var pitchIndex=0;

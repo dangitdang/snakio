@@ -21,7 +21,7 @@ var PlayersManager = function(opts) {
             notes: [],
             lastPing: new Date().getTime(),
             hue: randomColor(),
-            instrument: "piano",
+            instrument: 0,
             score:0,
             maxLength:8
         };

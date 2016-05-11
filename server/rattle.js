@@ -8,11 +8,10 @@ var io;
 var rattle;
 var sockets = {};
 var SCORES = [];
-notes.addNotes(500);
-notes.addPowerups(100);
 
 notes.addNotes(300);
 notes.addPowerups(100);
+notes.addInstruments(50);
 var listen = function(app){
     io = socketio.listen(app);
 
@@ -85,30 +84,38 @@ var sendUpdates = function () {
     var nearPlayers = players.nearByPlayers(player);
     var nearNotes = notes.nearByNotes(player);
     var nearPowerups=notes.nearByPowerups(player);
-
-      if (players.checkCollisions(player, nearPlayers)){
+    var nearInstruments=notes.nearByInstruments(player);
+    if (players.checkCollisions(player, nearPlayers)){
       sockets[id].emit('dead', {
         message : 'player dead'
       });
       players.deadPlayer(player);
     } else {
-      var noteAte = notes.ateNote(player, nearNotes);
-      var powerupAte = notes.atePowerup(player,nearPowerups );
-      if (noteAte) {
+    var noteAte = notes.ateNote(player, nearNotes);
+    var powerupAte = notes.atePowerup(player,nearPowerups );
+    var instrumentAte = notes.atePowerup(player,nearInstruments );
+    if (noteAte) {
         players.appendNote(player, noteAte.pitch);
       }
 
-      if (powerupAte) {
+    if (powerupAte) {
 
         player.maxLength+=powerupAte.increase;
           console.log(player.maxLength, "max len");
       }
+    
+    if (instrumentAte) {
+
+        player.instrument=instrumentAte.instrument;
+      }
+        
       sockets[id].emit('update',{
         player : player,
         nearByPlayers : nearPlayers,
         nearByNotes : nearNotes,
         nearByPowerups:nearPowerups,
-        scoreList : SCORES
+        scoreList : SCORES,
+        nearByInstruments:nearInstruments
       });
     }
 

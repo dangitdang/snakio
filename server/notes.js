@@ -1,10 +1,13 @@
 var R = require('ramda');
 var utils = require('../utils.js');
 var scale = [53, 55, 57, 58, 60, 62, 64, 65];
+var channels=[0,118, 57,8,109, 105,75, 36];
+
 var NotesManager = function(opts){
   var that = this;
   var notes = [];
   var powerups=[];
+  var instrumentPowers=[];
 
   that.addNotes = function(amnt){
     while (amnt--) {
@@ -29,6 +32,19 @@ var NotesManager = function(opts){
     }
   };
 
+  that.addInstruments = function(amnt){
+    while (amnt--) {
+        var position = utils.randomPosition(instrumentPowers);
+        instrumentPowers.push({
+          x : position.x,
+          y : position.y,
+          instrument : channels[utils.randomBetween(0,7)]
+        
+        });
+    }
+  };
+
+    
   that.decreaseNotes = function(amnt){
     while (amnt--){
       notes.pop();
@@ -52,11 +68,12 @@ var NotesManager = function(opts){
     });
   }
   
-  var deletePowerups = function(powerupsToDelete){
+  //will delete from instruments or powerups
+  var deletePowerups = function(powerupsToDelete, array){
     powerupsToDelete.forEach(function(power){
       for (var i = 0; i < powerups.length; i++) {
-        if (powerups[i].x === power.x && powerups[i].y === power.y) {
-          powerups.splice(i,1);
+        if (array[i].x === power.x && array[i].y === power.y) {
+          array.splice(i,1);
           break;
         }
       }
@@ -73,8 +90,12 @@ var NotesManager = function(opts){
     return R.filter(function(note){ return note;}, nearBy);
   };
   
-    that.nearByPowerups=function(player){
+  that.nearByPowerups=function(player){
         return powerups;
+    }
+    
+  that.nearByInstruments=function(player){
+        return instrumentPowers;
     }
 
   that.ateNote = function(player, nearBy){
@@ -88,10 +109,10 @@ var NotesManager = function(opts){
     return false;
   };
   
-    that.atePowerup = function(player, nearBy){
+  that.atePowerup = function(player, nearBy){
     for (var i = 0; i < nearBy.length; i++) {
       if (player.head.x === nearBy[i].x && player.head.y === nearBy[i].y){
-        deletePowerups([nearBy[i]]);
+        deletePowerups([nearBy[i]],nearBy);
         return nearBy[i];
       }
     }
