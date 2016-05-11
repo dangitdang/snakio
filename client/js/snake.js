@@ -45,12 +45,12 @@ $(document).ready(function() {
   };
   var instrumentToChannel = {
     0: 0,
-    118: 1,
+
     57: 2,
     8: 3,
     109: 4, //bagpipe
     105: 5, //banjo
-    75: 6, //panflute
+
     36: 7, //slap bass 1
   }
   var instrumentToName = {
@@ -146,7 +146,7 @@ $(document).ready(function() {
 
   MIDI.loadPlugin({
     soundfontUrl: "./soundfont2/",
-    instruments: ["acoustic_grand_piano", "trumpet", "synth_drum", "celesta", "bagpipe", "banjo", "pan_flute", "slap_bass_1"],
+    instruments: ["acoustic_grand_piano", "trumpet",  "celesta", "bagpipe", "banjo",  "slap_bass_1"],
     onprogress: function(state, progress) {
       console.log(progress*100);
       $('#progress-bar').progress({percent : progress*100})
@@ -155,12 +155,12 @@ $(document).ready(function() {
     onsuccess: function() {
       midiLoaded = true;
       MIDI.programChange(0, 0); // set channel 0 to piano
-      MIDI.programChange(1, 118); // set channel 1 to synth drum
+      //MIDI.programChange(1, 118); // set channel 1 to synth drum
       MIDI.programChange(2, 56); //trumpet
       MIDI.programChange(3, 8); //celesta
       MIDI.programChange(4, 109); //bagpipe
       MIDI.programChange(5, 105); //banjo
-      MIDI.programChange(6, 75); //panflute
+      //MIDI.programChange(6, 75); //panflute
       MIDI.programChange(7, 36); //slap bass
       $('#progress-bar').fadeOut(400, function(){
         $('.after-load').fadeIn()
@@ -201,7 +201,6 @@ $(document).ready(function() {
       animLoopHandle = window.requestAnimationFrame(animLoop);
       gameLoop();
     }
-
     function calculateVelocity(player, other){
       var p1 = player.head;
       var p2 = other.head;
@@ -309,7 +308,6 @@ $(document).ready(function() {
   function paintNotes() {
     var dx = (Math.floor(width / cellSize / 2 - player.head.x));
     var dy = (Math.floor(height / cellSize / 2 - player.head.y));
-    //console.log(dx, dy, "paintnote dx dy");
     if (!notes) return;
     notes.forEach(function(note) {
       color_note(dx + note.x, dy + note.y, pitchToColor[note.pitch]);
@@ -318,10 +316,8 @@ $(document).ready(function() {
   }
 
   function paintPowerups(array) {
-    //console.log("powerups paint", powerups);
     var dx = (Math.floor(width / cellSize / 2 - player.head.x));
     var dy = (Math.floor(height / cellSize / 2 - player.head.y));
-    //console.log(dx, dy, "powerup dx dy");
     if (!array) return;
     array.forEach(function(power) {
       color_powerup(dx + power.x, dy + power.y, powerToColor[power.effect]);
@@ -339,6 +335,42 @@ $(document).ready(function() {
     if (colorToNote[color] != undefined) {
       ctx.fillText(colorToNote[color], x * cellSize + cellSize / 4, y * cellSize + cellSize * .75);
     }
+
+  }
+
+    //semicircular head
+    function color_head(x, y, color) {
+    ctx.fillStyle = color;
+
+    ctx.beginPath();
+    if (player.dir[0]==0){ //up or down
+        if(player.dir[1]==-1){ //up
+            ctx.fillRect(x * cellSize, y * cellSize+cellSize/2.0, cellSize, cellSize/2.0);
+            ctx.arc(x * cellSize+cellSize/2.0, y * cellSize+cellSize/2.0, cellSize/2.0, 0, Math.PI, true);
+        }
+
+        else{ //down
+            ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize/2.0);
+            ctx.arc(x * cellSize+cellSize/2.0, y * cellSize+cellSize/2.0, cellSize/2.0, 0, Math.PI, false);
+        }
+    }
+
+
+    else { //left or right
+        if (player.dir[0]==-1){ //left
+            ctx.fillRect(x * cellSize+cellSize/2.0, y * cellSize, cellSize/2.0, cellSize);
+        ctx.arc(x * cellSize+cellSize-cellSize/2.0, y * cellSize+cellSize/2.0, cellSize/2.0, 0, Math.PI*2, true);
+
+        }
+        else{ //right
+            ctx.fillRect(x * cellSize, y * cellSize, cellSize/2.0, cellSize);
+          ctx.arc(x * cellSize+cellSize/2.0, y * cellSize+cellSize/2.0, cellSize/2.0, 0, Math.PI*2, true);
+        }
+        }
+
+    ctx.closePath();
+    ctx.fill();
+
 
   }
 
@@ -434,7 +466,7 @@ $(document).ready(function() {
     var dx = (Math.floor(width / cellSize / 2) - head.x);
     var dy = (Math.floor(height / cellSize / 2) - head.y);
     var headColor = pitchToColor[player.notes[0]];
-    color_note(head.x + dx, head.y + dy, player.hue);
+    color_head(head.x + dx, head.y + dy, player.hue);
     return {
       dx: dx,
       dy: dy,
