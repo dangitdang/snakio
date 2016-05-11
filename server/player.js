@@ -169,16 +169,29 @@ var PlayersManager = function(grid, opts) {
     console.log('died');
     player.dir = [0, 0];
     if (player.head.y < 200 && player.head.y > 0 && player.head.x < 200 && player.head.y > 0) {
-      grid[player.head.y][player.head.x] = undefined;
+      var gridValue = grid[player.head.y][player.head.x];
+      if (gridValue !== undefined) {
+        var newValues = gridValue.filter(function(o){
+          return o.playerID !== player.id;
+        });
+        grid[player.head.y][player.head.x] = newValues;
+      }
+
     }
 
     player.body.forEach(function(part) {
       try {
-        grid[part.y][part.x] = undefined;
+        var gridValue = grid[part.y][part.x];
+        if (gridValue !== undefined) {
+          var newValues = gridValue.filter(function(o){
+            return o.playerID !== player.id;
+          });
+          grid[part.y][part.x] = newValues;
+        }
       } catch (e) {
         console.log(e);
       }
-    })
+    });
     player.head = {};
     player.body = [];
     player.notes = [];

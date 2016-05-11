@@ -101,7 +101,7 @@ var sendUpdates = function () {
       return;
     }
     var nearPlayers = players.nearByPlayers(player);
-
+    console.log(nearPlayers);
     var nearByItems = notes.nearByNotes(player);
     var nearNotes = nearByItems.filter(function(i){
       return i.type === 'NOTE';

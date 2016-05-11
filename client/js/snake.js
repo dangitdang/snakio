@@ -380,6 +380,7 @@ $(document).ready(function() {
   }
 
   function paintOthers(snake, diff) {
+
     paintPart(snake.head, diff, snake.hue);
     snake.body.forEach(function(part) {
       paintPart(part, diff, snake.hue);
