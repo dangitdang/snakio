@@ -159,10 +159,12 @@ var PlayersManager = function(grid, opts) {
         }
       }
     }
-    console.log(nearBy2, 'players')
-    return nearBy2.map(function(id) {
+    var nearByPlayers= nearBy2.map(function(id) {
       return that.getPlayer(id);
     });
+    return nearByPlayers.filer(function(p){
+      return p !== undefined;
+    })
 
 
   };
