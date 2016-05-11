@@ -1,17 +1,24 @@
-var players = require('./player.js')({});
-var notes   = require('./notes.js')({});
+var utils = require('../utils.js');
 var socketio = require('socket.io');
 var config = require('../config.js');
-
+var powerups = require('./powerups.js');
 var COMMANDS = ['setDirection','activatePower'];
+var POWERS = ['changeInstrument', 'increaseMaxLength', 'increaseMaxLength'];
 var io;
 var rattle;
 var sockets = {};
-var SCORES = [];
+var grid = utils.makeGrid(200, 200);
+var players = require('./player.js')(grid, {});
+var notes   = require('./notes.js')(grid, {});
 
-notes.addNotes(300);
-notes.addPowerups(100);
-notes.addInstruments(50);
+notes.addNotes(200);
+
+for (var i = 0; i < 20; i++) {
+  var power = utils.randomBetween(0,3);
+  notes.addPowerups(1,POWERS[power]);
+}
+
+var SCORES = [];
 var listen = function(app){
     io = socketio.listen(app);
 
@@ -75,53 +82,51 @@ var updateScores=function(){
 
 var sendUpdates = function () {
   var start = console.time('update')
+  if (Math.random() < .03 && notes.totalPowerUps() < 70){
+    console.log('New Power up spawned');
+    var power = utils.randomBetween(0,3);
+    notes.addPowerups(1,POWERS[power]);
+  }
   players.moveAll();
 
   var playersId = Object.keys(sockets);
   playersId.forEach(function(id){
-
     var player = players.getPlayer(id);
+    if (player.dir[0] === player.dir[1]){
+      return;
+    }
     var nearPlayers = players.nearByPlayers(player);
-    var nearNotes = notes.nearByNotes(player);
-    var nearPowerups=notes.nearByPowerups(player);
-    var nearInstruments=notes.nearByInstruments(player);
+    var nearByItems = notes.nearByNotes(player);
+    var nearNotes = nearByItems.filter(function(i){
+      return i.type === 'NOTE';
+    })
+    var nearPowerups = nearByItems.filter(function(i){
+      return i.type === 'POWERUP'
+    });
     if (players.checkCollisions(player, nearPlayers)){
       sockets[id].emit('dead', {
         message : 'player dead'
       });
       players.deadPlayer(player);
     } else {
-    var noteAte = notes.ateNote(player, nearNotes);
-    var powerupAte = notes.atePowerup(player,nearPowerups );
-    var instrumentAte = notes.atePowerup(player,nearInstruments );
-    if (noteAte) {
-        players.appendNote(player, noteAte.pitch);
+      var thingAte = notes.eatNote(player);
+      if (thingAte) {
+        if (thingAte.type === 'NOTE') {
+          players.appendNote(player, thingAte.pitch);
+        } else {
+          powerups[thingAte.effect](player);
+        }
       }
-
-    if (powerupAte) {
-
-        player.maxLength+=powerupAte.increase;
-          console.log(player.maxLength, "max len");
-      }
-
-    if (instrumentAte) {
-
-        player.instrument=instrumentAte.instrument;
-      }
-
       sockets[id].emit('update',{
         player : player,
         nearByPlayers : nearPlayers,
         nearByNotes : nearNotes,
         nearByPowerups:nearPowerups,
-        scoreList : SCORES,
-        nearByInstruments:nearInstruments
+        scoreList : SCORES
       });
     }
-
-
   });
-var end = console.timeEnd('update')
+// var end = console.timeEnd('update')
 }
 
 module.exports = {
